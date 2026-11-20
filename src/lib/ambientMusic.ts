@@ -9,7 +9,7 @@ const BPM = 70
 const BEAT = 60 / BPM
 const STEP = BEAT / 2 // corcheas
 const STEPS_PER_CHORD = 16 // dos compases de 4/4
-const VOLUME = 0.14
+const VOLUME = 0.7 // antes 0.14; con un limitador al final para que no sature
 
 const CHORDS = [
   { bass: 36, pad: [60, 64, 67, 71] }, // Cmaj7
@@ -48,7 +48,14 @@ export function createAmbientMusic(): AmbientMusic | null {
     ctx = new Ctx()
     master = ctx.createGain()
     master.gain.value = 0
-    master.connect(ctx.destination)
+    // limitador: con el volumen alto, evita que los picos saturen
+    const limiter = ctx.createDynamicsCompressor()
+    limiter.threshold.value = -6
+    limiter.knee.value = 4
+    limiter.ratio.value = 12
+    limiter.attack.value = 0.003
+    limiter.release.value = 0.25
+    master.connect(limiter).connect(ctx.destination)
 
     dry = ctx.createGain()
     dry.gain.value = 0.7
