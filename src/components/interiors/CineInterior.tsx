@@ -66,7 +66,7 @@ export default function CineInterior({ onExit }: Props) {
             >
               FJAHFLIX
             </span>
-            <div role="tablist" aria-label="Categorías" className="flex gap-[2.2cqw]">
+            <div role="tablist" aria-label="Categorías" className="flex gap-[2cqw]">
               {CATEGORIES.map((c, i) => {
                 const selected = c.id === active
                 return (
@@ -195,7 +195,7 @@ function Poster({ item }: { item: Title }) {
       href={imdbUrl(item.imdbId)}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${item.title} (${item.year}), abrir en IMDb`}
+      aria-label={`${item.title} (${item.year}${item.tag ? `, ${item.tag}` : ''}), abrir en IMDb`}
       initial="rest"
       animate="rest"
       whileHover="hover"
@@ -224,7 +224,7 @@ function Poster({ item }: { item: Title }) {
       >
         <span className="text-[1.3cqw] font-bold leading-tight">{item.title}</span>
         <span className="mt-[0.4cqw] flex items-center justify-between text-[0.95cqw] text-white/70">
-          {item.year}
+          {item.tag ? `${item.year} · ${item.tag}` : item.year}
           <span className="rounded-[0.25cqw] bg-[#f5c518] px-[0.5cqw] py-[0.1cqw] text-[0.85cqw] font-black text-black">
             IMDb
           </span>

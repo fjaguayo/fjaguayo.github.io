@@ -3,14 +3,13 @@
  *
  * Para añadir un título:
  *   1. Busca la ficha en IMDb y copia el id de la URL: imdb.com/title/tt0903747/ -> 'tt0903747'.
- *   2. Carátula (opcional): guarda la imagen como public/cine/<imdbId>.webp (o .jpg)
+ *   2. Carátula (opcional): guarda la imagen como public/cine/<imdbId>.webp (unos 360 px de ancho)
  *      y pon su nombre en `poster`. También vale una URL completa (https://...).
  *      Si no hay carátula, se dibuja una tarjeta con el título.
- *
- * Los títulos de abajo son de ejemplo: sustitúyelos por los tuyos.
+ *   3. `tag` (opcional) es una etiqueta corta que sale junto al año, como el estudio.
  */
 
-export type CategoryId = 'series' | 'peliculas' | 'peliculas_animadas' | 'series_animadas'
+export type CategoryId = 'series' | 'peliculas' | 'peliculas_animadas' | 'series_animadas' | 'anime'
 
 export interface Title {
   title: string
@@ -19,6 +18,8 @@ export interface Title {
   imdbId: string
   /** Archivo dentro de public/cine/ o URL completa. Opcional. */
   poster?: string
+  /** Etiqueta corta junto al año (p. ej. el estudio). Opcional. */
+  tag?: string
 }
 
 export interface Category {
@@ -32,51 +33,63 @@ export const CATEGORIES: Category[] = [
     id: 'series',
     label: 'Series',
     items: [
-      { title: 'Breaking Bad', year: '2008', imdbId: 'tt0903747' },
-      { title: 'Juego de Tronos', year: '2011', imdbId: 'tt0944947' },
-      { title: 'Stranger Things', year: '2016', imdbId: 'tt4574334' },
-      { title: 'Dark', year: '2017', imdbId: 'tt5753856' },
-      { title: 'The Office', year: '2005', imdbId: 'tt0386676' },
-      { title: 'Peaky Blinders', year: '2013', imdbId: 'tt2442560' },
-      { title: 'Chernobyl', year: '2019', imdbId: 'tt7366338' },
+      { title: 'House', year: '2004', imdbId: 'tt0412142' },
+      { title: 'El mentalista', year: '2008', imdbId: 'tt1196946' },
+      { title: 'Shameless', year: '2011', imdbId: 'tt1586680' },
+      { title: 'Friends', year: '1994', imdbId: 'tt0108778' },
+      { title: 'The Big Bang Theory', year: '2007', imdbId: 'tt0898266' },
+      { title: 'Grimm', year: '2011', imdbId: 'tt1830617' },
     ],
   },
   {
     id: 'peliculas',
     label: 'Películas',
     items: [
-      { title: 'Interstellar', year: '2014', imdbId: 'tt0816692' },
-      { title: 'Origen', year: '2010', imdbId: 'tt1375666' },
-      { title: 'El caballero oscuro', year: '2008', imdbId: 'tt0468569' },
-      { title: 'Matrix', year: '1999', imdbId: 'tt0133093' },
-      { title: 'Pulp Fiction', year: '1994', imdbId: 'tt0110912' },
-      { title: 'Gladiator', year: '2000', imdbId: 'tt0172495' },
-      { title: 'Regreso al futuro', year: '1985', imdbId: 'tt0088763' },
+      { title: 'Nadie', year: '2021', imdbId: 'tt7888964', poster: 'tt7888964.webp' },
+      { title: 'Talk to Me', year: '2022', imdbId: 'tt10638522', poster: 'tt10638522.webp' },
+      { title: 'Babylon', year: '2022', imdbId: 'tt10640346', poster: 'tt10640346.webp' },
+      { title: 'El gran showman', year: '2017', imdbId: 'tt1485796', poster: 'tt1485796.webp' },
+      { title: 'La odisea', year: '2026', imdbId: 'tt33764258', poster: 'tt33764258.webp' },
     ],
   },
   {
     id: 'peliculas_animadas',
     label: 'Películas animadas',
     items: [
-      { title: 'El viaje de Chihiro', year: '2001', imdbId: 'tt0245429' },
-      { title: 'Spider-Man: Un nuevo universo', year: '2018', imdbId: 'tt4633694' },
-      { title: 'Toy Story', year: '1995', imdbId: 'tt0114709' },
-      { title: 'Up', year: '2009', imdbId: 'tt1049413' },
-      { title: 'Coco', year: '2017', imdbId: 'tt2380307' },
-      { title: 'WALL·E', year: '2008', imdbId: 'tt0910970' },
-      { title: 'El rey león', year: '1994', imdbId: 'tt0110357' },
+      { title: 'WALL·E', year: '2008', imdbId: 'tt0910970', poster: 'tt0910970.webp', tag: 'Pixar' },
+      { title: 'Vaiana', year: '2016', imdbId: 'tt3521164', poster: 'tt3521164.webp', tag: 'Disney' },
+      { title: 'Rango', year: '2011', imdbId: 'tt1192628', poster: 'tt1192628.webp', tag: 'Paramount' },
+      {
+        title: 'Monstruos contra alienígenas',
+        year: '2009',
+        imdbId: 'tt0892782',
+        poster: 'tt0892782.webp',
+        tag: 'DreamWorks',
+      },
+      { title: 'Monster House', year: '2006', imdbId: 'tt0385880', poster: 'tt0385880.webp', tag: 'Sony' },
     ],
   },
   {
     id: 'series_animadas',
     label: 'Series animadas',
     items: [
+      { title: 'Las Tortugas Ninja', year: '2012', imdbId: 'tt1877889' },
+      { title: 'El asombroso mundo de Gumball', year: '2011', imdbId: 'tt1942683' },
+      { title: 'Ben 10', year: '2005', imdbId: 'tt0760437' },
+      { title: 'Los pingüinos de Madagascar', year: '2008', imdbId: 'tt0892700' },
+      { title: 'Primal', year: '2019', imdbId: 'tt10332508' },
       { title: 'Avatar: La leyenda de Aang', year: '2005', imdbId: 'tt0417299' },
-      { title: 'Arcane', year: '2021', imdbId: 'tt11126994' },
-      { title: 'Rick y Morty', year: '2013', imdbId: 'tt2861424' },
-      { title: 'Ataque a los titanes', year: '2013', imdbId: 'tt2560140' },
-      { title: 'BoJack Horseman', year: '2014', imdbId: 'tt3398228' },
-      { title: 'Los Simpson', year: '1989', imdbId: 'tt0096697' },
+    ],
+  },
+  {
+    id: 'anime',
+    label: 'Anime',
+    items: [
+      { title: 'Vinland Saga', year: '2019', imdbId: 'tt10233448' },
+      { title: 'Tensei Shitara Slime Datta Ken', year: '2018', imdbId: 'tt9054364' },
+      { title: 'Shangri-La Frontier', year: '2023', imdbId: 'tt28776190' },
+      { title: 'One Piece', year: '1999', imdbId: 'tt0388629' },
+      { title: 'Black Clover', year: '2017', imdbId: 'tt7441658' },
     ],
   },
 ]
