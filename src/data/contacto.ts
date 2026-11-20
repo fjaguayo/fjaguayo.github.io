@@ -7,7 +7,7 @@ export const SUBJECT = 'Contacto desde tu portfolio'
  * Vacío: el botón "Enviar postal" abre el correo del visitante con el mensaje ya escrito.
  * Con id: la postal se envía desde la web y te llega a tu Gmail sin salir de ella.
  */
-export const FORMSPREE_ID = ''
+export const FORMSPREE_ID = 'maeodqdy'
 
 export const gmailUrl = (body = '') =>
   `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(EMAIL)}&su=${encodeURIComponent(SUBJECT)}${
