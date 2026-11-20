@@ -6,7 +6,7 @@ Requisitos: pip install opencv-python-headless pillow numpy
 Salida:
   public/assets/<id>.webp, <id>_hover.webp (lo que usa la web)
   assets-png/<id>.png, <id>_hover.png (copia en PNG, fuera de public para no publicarla)
-  public/assets/mapa_base.webp (tamaño original)
+  public/assets/mapa_base.webp (a partir de Imagenes/mapa_mejorado.jpg, tamaño original)
   src/data/hitAreas.json (tamaño, punto de apoyo y contorno de cada edificio)
 
 Los originales de Imagenes/ no se tocan nunca.
@@ -45,7 +45,7 @@ def main():
     PNG.mkdir(parents=True, exist_ok=True)
     DATA.parent.mkdir(parents=True, exist_ok=True)
 
-    mapa = Image.open(SRC / "Mapa.jpg").convert("RGB")
+    mapa = Image.open(SRC / "mapa_mejorado.jpg").convert("RGB")
     mapa.save(OUT / "mapa_base.webp", quality=80, method=6)  # 80 para no pasar de ~3 MB de carga inicial
     print(f"mapa_base: {mapa.size[0]}x{mapa.size[1]}")
 

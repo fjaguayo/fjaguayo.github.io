@@ -34,7 +34,7 @@ FJAH City es el **portfolio web personal** de Francisco Javier Aguayo Hernández
 
 | Archivo original | id | Nombre en la etiqueta |
 |---|---|---|
-| `Imagenes/Mapa.jpg` | `mapa_base` | (fondo) |
+| `Imagenes/mapa_mejorado.jpg` | `mapa_base` | (fondo; sustituye a `Mapa.jpg`) |
 | `Imagenes/Universidad.jpg` | `universidad` | UNIVERSIDAD |
 | `Imagenes/project.jpg` | `empresa` | LA EMPRESA |
 | `Imagenes/Taller.jpg` | `taller` | EL TALLER |
