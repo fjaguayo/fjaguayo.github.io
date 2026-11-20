@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { MAP_SIZE, assetUrl, type BuildingConfig } from '../data/buildings'
+import Birds from './Birds'
 import Building from './Building'
 
 interface Props {
@@ -50,6 +51,7 @@ export default function CityMap({ buildings, editing = false, children }: Props)
             <Building key={b.id} building={b} editing={editing} />
           ))}
         </nav>
+        <Birds />
         {children}
       </div>
     </div>

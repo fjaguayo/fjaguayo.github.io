@@ -2,8 +2,10 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import CityMap from './components/CityMap'
 import ComingSoon from './components/ComingSoon'
+import MusicToggle from './components/MusicToggle'
 import { BUILDINGS, type BuildingId } from './data/buildings'
 import { ENTER_EVENT } from './lib/enterBuilding'
+import { createAmbientMusic } from './lib/ambientMusic'
 import { INTERIORS } from './interiors'
 
 // Modo de colocación: solo en desarrollo y con ?edit en la URL.
@@ -16,6 +18,30 @@ export default function App() {
   const [inside, setInside] = useState<BuildingId | null>(null)
   // al salir, el foco vuelve al edificio por el que se entró
   const returnFocus = useRef<HTMLElement | null>(null)
+
+  // música de la ciudad: el navegador no deja sonar nada hasta el primer clic o tecla
+  const music = useRef(createAmbientMusic())
+  const [musicOn, setMusicOn] = useState(true)
+  const [unlocked, setUnlocked] = useState(false)
+
+  useEffect(() => {
+    if (unlocked) return
+    const unlock = () => setUnlocked(true)
+    window.addEventListener('pointerdown', unlock, { once: true })
+    window.addEventListener('keydown', unlock, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+  }, [unlocked])
+
+  // suena en la ciudad; se calla dentro de los edificios (el cine tiene su propio sonido)
+  useEffect(() => {
+    const m = music.current
+    if (!m || !unlocked) return
+    if (musicOn && !inside) m.play()
+    else m.pause()
+  }, [unlocked, musicOn, inside])
 
   useEffect(() => {
     const onEnter = (e: Event) => {
@@ -43,6 +69,7 @@ export default function App() {
           )}
         </CityMap>
         <ComingSoon />
+        {music.current && <MusicToggle on={musicOn} onToggle={() => setMusicOn((v) => !v)} />}
       </div>
 
       <AnimatePresence onExitComplete={() => returnFocus.current?.focus({ preventScroll: true })}>
