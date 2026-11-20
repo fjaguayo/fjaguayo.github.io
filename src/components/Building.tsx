@@ -12,9 +12,11 @@ interface Props {
 const spring = { type: 'spring', stiffness: 380, damping: 22, mass: 0.7 } as const
 
 export default function Building({ building, editing = false }: Props) {
-  const { id, label, image, x, y, width } = building
+  const { id, label, image, x, y, width, rotate = 0, flip = false } = building
   const hit = HIT_AREAS[id]
-  const [ax, ay] = hit.anchor
+  // con espejo, el punto de apoyo también se refleja
+  const ax = flip ? 1 - hit.anchor[0] : hit.anchor[0]
+  const ay = hit.anchor[1]
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
   const active = !editing && (hovered || focused)
@@ -44,6 +46,11 @@ export default function Building({ building, editing = false }: Props) {
         animate={active ? { scale: 1.08, y: -6 } : { scale: 1, y: 0 }}
         transition={spring}
       >
+        <div
+          className="absolute inset-0"
+          style={{ transformOrigin: `${ax * 100}% ${ay * 100}%`, transform: rotate ? `rotate(${rotate}deg)` : undefined }}
+        >
+        <div className="absolute inset-0" style={{ transform: flip ? 'scaleX(-1)' : undefined }}>
         <img
           src={assetUrl(image)}
           alt=""
@@ -77,6 +84,8 @@ export default function Building({ building, editing = false }: Props) {
             />
           ))}
         </svg>
+        </div>
+        </div>
       </motion.div>
 
       <AnimatePresence>

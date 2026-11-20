@@ -19,9 +19,10 @@ const mapRatio = MAP_SIZE.width / MAP_SIZE.height
 
 function bbox(b: BuildingConfig) {
   const hit = HIT_AREAS[b.id]
-  const [ax, ay] = hit.anchor
+  const ax = b.flip ? 1 - hit.anchor[0] : hit.anchor[0]
+  const ay = hit.anchor[1]
   const pts = hit.polygons.flat()
-  const xs = pts.map((p) => p[0])
+  const xs = pts.map((p) => (b.flip ? 1 - p[0] : p[0]))
   const ys = pts.map((p) => p[1])
   const hPct = b.width * (hit.height / hit.width) * mapRatio // alto de la imagen en % del alto del mapa
   return {
@@ -35,7 +36,7 @@ function bbox(b: BuildingConfig) {
 function toSource(buildings: BuildingConfig[]) {
   const lines = buildings.map(
     (b) =>
-      `  { id: '${b.id}', label: '${b.label}', image: '${b.image}', x: ${round(b.x)}, y: ${round(b.y)}, width: ${round(b.width)} },`,
+      `  { id: '${b.id}', label: '${b.label}', image: '${b.image}', x: ${round(b.x)}, y: ${round(b.y)}, width: ${round(b.width)}${b.rotate ? `, rotate: ${b.rotate}` : ''}${b.flip ? ', flip: true' : ''} },`,
   )
   return `export const BUILDINGS: BuildingConfig[] = [\n${lines.join('\n')}\n]\n`
 }

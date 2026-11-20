@@ -26,6 +26,10 @@ export interface BuildingConfig {
   y: number
   /** Ancho de la imagen, en % del ancho del mapa. */
   width: number
+  /** Giro en grados alrededor del punto de apoyo (opcional). */
+  rotate?: number
+  /** Espejo horizontal, para que la fachada mire a la carretera (opcional). */
+  flip?: boolean
 }
 
 /** Tamaño original del mapa, para mantener su proporción. */
