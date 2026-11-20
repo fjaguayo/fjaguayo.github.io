@@ -29,7 +29,7 @@ export default function UniversidadInterior({ onExit }: Props) {
   const slide = SLIDES[index]
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-6">
+    <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4">
       <button
         type="button"
         aria-label="Cerrar la universidad"
@@ -45,8 +45,8 @@ export default function UniversidadInterior({ onExit }: Props) {
         animate={{ y: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 26 }}
         className="relative overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)]"
-        // ancho máximo que deja ver la foto entera (16:10) también en pantallas bajas
-        style={{ width: 'min(1100px, 94vw, calc((88dvh - 200px) * 1.6))' }}
+        // lo más grande posible sin tapar el botón de volver y dejando ver la foto entera (16:10)
+        style={{ width: 'min(1640px, 96vw, calc((100dvh - 96px - 62px) * 1.6))' }}
       >
         <header className="flex items-center justify-between border-b-4 border-ink bg-berry px-5 py-3 text-cream">
           <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide">Formación</h2>
@@ -55,13 +55,10 @@ export default function UniversidadInterior({ onExit }: Props) {
           </span>
         </header>
 
-        <div className="relative aspect-[16/10] overflow-hidden border-b-4 border-ink bg-ink">
+        <div className="relative aspect-[16/10] overflow-hidden bg-ink">
           <AnimatePresence initial={false} custom={dir} mode="popLayout">
-            <motion.img
+            <motion.div
               key={slide.src}
-              src={slideUrl(slide.src)}
-              alt={slide.caption}
-              draggable={false}
               custom={dir}
               variants={{
                 enter: (d: number) => ({ x: `${d * 100}%` }),
@@ -72,54 +69,70 @@ export default function UniversidadInterior({ onExit }: Props) {
               animate="center"
               exit="exit"
               transition={{ type: 'spring', stiffness: 260, damping: 32 }}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
+              className="absolute inset-0"
+            >
+              {/* relleno: la misma imagen, ampliada y desenfocada, para las fotos que no son 16:10 */}
+              <img
+                src={slideUrl(slide.src)}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl brightness-75"
+              />
+              <img
+                src={slideUrl(slide.src)}
+                alt={slide.caption}
+                draggable={false}
+                className="absolute inset-0 h-full w-full object-contain"
+              />
+            </motion.div>
           </AnimatePresence>
 
           <NavArrow side="left" disabled={index === 0} onClick={() => go(index - 1)} />
           <NavArrow side="right" disabled={index === last} onClick={() => go(index + 1)} />
-        </div>
+            {/* subtítulo y línea de tiempo, sobre la parte baja de la foto */}
+              <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-6 pt-14 pb-4">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.p
+                  key={slide.caption}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="m-0 text-center font-display text-3xl uppercase leading-tight tracking-wide text-cream [text-shadow:0_3px_0_#1b1b2f]"
+                >
+                  {slide.caption}
+                </motion.p>
+              </AnimatePresence>
 
-        <div className="px-6 pt-4 pb-5">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.p
-              key={slide.caption}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-              className="m-0 text-center font-display text-2xl uppercase leading-tight tracking-wide text-ink"
-            >
-              {slide.caption}
-            </motion.p>
-          </AnimatePresence>
-
-          {/* línea de tiempo: un punto por etapa, unidos por una línea */}
-          {SLIDES.length > 1 && (
-            <ol className="relative m-0 mx-auto mt-4 flex max-w-xl list-none items-center justify-between p-0">
-              <span aria-hidden="true" className="absolute top-1/2 right-2 left-2 h-1 -translate-y-1/2 rounded-full bg-ink/25" />
-              <motion.span
-                aria-hidden="true"
-                className="absolute top-1/2 left-2 h-1 -translate-y-1/2 rounded-full bg-berry"
-                animate={{ width: `calc(${(index / last) * 100}% - ${(index / last) * 16}px)` }}
-                transition={{ type: 'spring', stiffness: 260, damping: 32 }}
-              />
-              {SLIDES.map((s, i) => (
-                <li key={s.src} className="relative">
-                  <button
-                    type="button"
-                    onClick={() => go(i)}
-                    aria-label={`${i + 1}. ${s.caption}`}
-                    aria-current={i === index ? 'step' : undefined}
-                    className={`block cursor-pointer rounded-full border-[3px] border-ink transition-all outline-none focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-sky ${
-                      i === index ? 'h-5 w-5 bg-berry' : i < index ? 'h-4 w-4 bg-berry' : 'h-4 w-4 bg-cream'
-                    }`}
+              {/* línea de tiempo: un punto por etapa, unidos por una línea */}
+              {SLIDES.length > 1 && (
+                <ol className="relative m-0 mx-auto mt-3 flex max-w-xl list-none items-center justify-between p-0">
+                  <span aria-hidden="true" className="absolute top-1/2 right-2 left-2 h-1 -translate-y-1/2 rounded-full bg-white/35" />
+                  <motion.span
+                    aria-hidden="true"
+                    className="absolute top-1/2 left-2 h-1 -translate-y-1/2 rounded-full bg-berry"
+                    animate={{ width: `calc(${(index / last) * 100}% - ${(index / last) * 16}px)` }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 32 }}
                   />
-                </li>
-              ))}
-            </ol>
-          )}
+                  {SLIDES.map((s, i) => (
+                    <li key={s.src} className="relative">
+                      <button
+                        type="button"
+                        onClick={() => go(i)}
+                        aria-label={`${i + 1}. ${s.caption}`}
+                        aria-current={i === index ? 'step' : undefined}
+                        className={`block cursor-pointer rounded-full border-[3px] border-ink transition-all outline-none focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-sky ${
+                          i === index ? 'h-5 w-5 bg-berry' : i < index ? 'h-4 w-4 bg-berry' : 'h-4 w-4 bg-cream'
+                        }`}
+                      />
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
         </div>
+
       </motion.section>
 
       <ExitButton onExit={onExit} />
