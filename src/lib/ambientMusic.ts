@@ -9,7 +9,7 @@ const BPM = 70
 const BEAT = 60 / BPM
 const STEP = BEAT / 2 // corcheas
 const STEPS_PER_CHORD = 16 // dos compases de 4/4
-const VOLUME = 1 // con un limitador al final para que no sature
+const VOLUME = 0.6 // con un limitador al final para que no sature
 
 const CHORDS = [
   { bass: 36, pad: [60, 64, 67, 71] }, // Cmaj7
