@@ -79,13 +79,13 @@ Javier ya validó el aspecto del ejemplo. Puede pedir más o menos grosor de sil
 - **Cartel de bienvenida** ("Welcome to FJAH") en la zona de abajo a la derecha.
 - **No hay cartel en el centro superior**: se descarta el cartel dinámico de las especificaciones. El nombre sale bajo cada edificio.
 
-### 3. Decidir las parcelas con Javier
+### 3. Decidir las parcelas con Javier (hecho)
 
-El mapa tiene seis parcelas vacías claras (cuatro de tierra, una vallada de césped a la derecha y un hoyo de obra a la izquierda), un parque ya dibujado en el centro con estanque y varias manzanas verdes con palmeras.
+El fondo es ahora `Imagenes/mapa_mejorado.jpg`: mismas carreteras que el mapa original, pero con las manzanas limpias de césped, sin parcelas de tierra ni parque dibujado.
 
-1. Genera una imagen del mapa con las parcelas candidatas numeradas y propón un reparto (por ejemplo, el distrito profesional agrupado y el aeropuerto en la parcela más grande).
-2. **Espera a que Javier lo apruebe** antes de fijar las posiciones.
-3. Añade un **modo de colocación solo para desarrollo** (por ejemplo, con `?edit` en la URL y nunca en producción) para arrastrar cada edificio, cambiar su tamaño y copiar las coordenadas resultantes. Así Javier puede afinar la colocación a ojo.
+Javier colocó los edificios con el editor publicado como Artifact (mover, escalar, girar y espejar) y aprobó el resultado el 20/11/2026. Las posiciones están en `src/data/buildings.ts`, que admite `rotate` y `flip` por edificio. Los edificios se espejan para que la fachada mire a la carretera.
+
+El modo de colocación para desarrollo sigue disponible con `npm run dev` y `?edit`, y nunca llega a producción.
 
 ### 4. Edificios como botones
 
@@ -112,7 +112,7 @@ Interiores y modales (fase 2), HUD (ficha de personaje, botón de CV, plano de m
 - El mapa se ve a pantalla completa en un ordenador (de 1366×768 a 2560×1440) y los edificios no se mueven de su parcela al cambiar el tamaño de la ventana.
 - Cada edificio responde solo sobre su dibujo, con su efecto de hover y su etiqueta, también con el teclado.
 - La carga inicial pesa menos de ~3 MB en total.
-- Javier ha aprobado la colocación de los edificios.
+- Javier ha aprobado la colocación de los edificios. (Hecho.)
 - La web está publicada en fjaguayo.github.io.
 
 ## Cómo trabajar con Javier

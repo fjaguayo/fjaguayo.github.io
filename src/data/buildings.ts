@@ -41,15 +41,15 @@ export const BUILDINGS: BuildingConfig[] = [
   { id: 'universidad', label: 'Universidad', image: 'universidad', x: 32.88, y: 72.71, width: 12.5, flip: true },
   { id: 'empresa', label: 'La Empresa', image: 'empresa', x: 53.48, y: 62.17, width: 11.99, rotate: -3, flip: true },
   { id: 'taller', label: 'El Taller', image: 'taller', x: 60.11, y: 83.99, width: 11 },
-  { id: 'centro_civico', label: 'Centro Cívico', image: 'centro_civico', x: 99.03, y: 42.07, width: 9.5 },
+  { id: 'centro_civico', label: 'Centro Cívico', image: 'centro_civico', x: 42.04, y: 85.75, width: 9.5 },
   { id: 'oficina_correos', label: 'Correos', image: 'oficina_correos', x: 61.64, y: 49.38, width: 9 },
   { id: 'aeropuerto', label: 'Aeropuerto', image: 'aeropuerto', x: 24.2, y: 51.72, width: 16.5, flip: true },
-  { id: 'gimnasio', label: 'Gimnasio', image: 'gimnasio', x: 41.53, y: 53.81, width: 8.5 },
+  { id: 'gimnasio', label: 'Gimnasio', image: 'gimnasio', x: 36.02, y: 39.56, width: 8.5, flip: true },
   { id: 'cine', label: 'Cine', image: 'cine', x: 73.59, y: 72.88, width: 11, flip: true },
-  { id: 'arcade', label: 'Arcade', image: 'arcade', x: 51.13, y: 41.13, width: 9.5 },
-  { id: 'parque', label: 'El Parque', image: 'parque', x: 36.39, y: 39.48, width: 9.68 },
+  { id: 'arcade', label: 'Arcade', image: 'arcade', x: 47.25, y: 37.24, width: 9.5 },
+  { id: 'parque', label: 'El Parque', image: 'parque', x: 70.19, y: 42.6, width: 9.68 },
   { id: 'cartel_bienvenida', label: 'Bienvenida', image: 'cartel_bienvenida', x: 82.44, y: 48.24, width: 10.44 },
-  { id: 'estacion_metro', label: 'Metro', image: 'estacion_metro', x: 43.72, y: 80.18, width: 6 },
+  { id: 'estacion_metro', label: 'Metro', image: 'estacion_metro', x: 40.7, y: 54.04, width: 7.86 },
 ]
 
 export interface HitArea {
