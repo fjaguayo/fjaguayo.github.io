@@ -263,9 +263,9 @@ export class Globe {
   private addPins() {
     const needleGeo = new THREE.CylinderGeometry(0.0045, 0.0045, 0.075, 8)
     const needleMat = new THREE.MeshLambertMaterial({ color: '#c9ccd6' })
-    const headGeo = new THREE.SphereGeometry(0.02, 16, 12)
+    const headGeo = new THREE.SphereGeometry(0.016, 16, 12)
     const headMat = new THREE.MeshLambertMaterial({ color: PIN })
-    const rimGeo = new THREE.SphereGeometry(0.027, 16, 12)
+    const rimGeo = new THREE.SphereGeometry(0.0215, 16, 12)
     const rimMat = new THREE.MeshBasicMaterial({ color: INK, side: THREE.BackSide })
     // zona de clic más grande que la cabeza, invisible
     const hitGeo = new THREE.SphereGeometry(0.05, 8, 6)
