@@ -16,7 +16,10 @@ from pathlib import Path
 
 from PIL import Image
 
+import tempfile
+
 from cutout import process
+from fix_text import fixed_source
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "Imagenes"
@@ -63,8 +66,11 @@ def main():
     print(f"mapa_base: {mapa.size[0]}x{mapa.size[1]}")
 
     hit = {}
-    for bid, fname in BUILDINGS.items():
-        hit[bid] = process(str(SRC / fname), str(OUT), bid, png_dir=str(PNG), **TRAPPED.get(bid, {}))
+    with tempfile.TemporaryDirectory() as tmp:
+        for bid, fname in BUILDINGS.items():
+            # letreros pre-espejados para los edificios que el mapa muestra en espejo
+            src = fixed_source(str(SRC / fname), bid, f"{tmp}/{bid}.jpg")
+            hit[bid] = process(src, str(OUT), bid, png_dir=str(PNG), **TRAPPED.get(bid, {}))
 
     DATA.write_text(json.dumps(hit, separators=(",", ":")) + "\n", encoding="utf-8")
     print(f"Escrito {DATA.relative_to(ROOT)}")
