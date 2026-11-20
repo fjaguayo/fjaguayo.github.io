@@ -35,21 +35,21 @@ export interface BuildingConfig {
 /** Tamaño original del mapa, para mantener su proporción. */
 export const MAP_SIZE = { width: 2752, height: 1536 }
 
-// Propuesta de colocación. Pendiente de que Javier la apruebe.
+// Colocación elegida por Javier en el editor (20/11/2026).
 // Para afinarla a ojo: `npm run dev` y abrir http://localhost:5173/?edit
 export const BUILDINGS: BuildingConfig[] = [
-  { id: 'universidad', label: 'Universidad', image: 'universidad', x: 33.5, y: 40.5, width: 12.5 },
-  { id: 'empresa', label: 'La Empresa', image: 'empresa', x: 31, y: 70, width: 11.5 },
-  { id: 'taller', label: 'El Taller', image: 'taller', x: 17, y: 56, width: 11 },
-  { id: 'centro_civico', label: 'Centro Cívico', image: 'centro_civico', x: 41.5, y: 50, width: 9.5 },
-  { id: 'oficina_correos', label: 'Correos', image: 'oficina_correos', x: 63.5, y: 48, width: 9 },
-  { id: 'aeropuerto', label: 'Aeropuerto', image: 'aeropuerto', x: 82.5, y: 50, width: 16.5 },
-  { id: 'gimnasio', label: 'Gimnasio', image: 'gimnasio', x: 53, y: 38, width: 8.5 },
-  { id: 'cine', label: 'Cine', image: 'cine', x: 71.5, y: 72, width: 11 },
-  { id: 'arcade', label: 'Arcade', image: 'arcade', x: 64, y: 87, width: 9.5 },
-  { id: 'parque', label: 'El Parque', image: 'parque', x: 46, y: 80, width: 10 },
-  { id: 'cartel_bienvenida', label: 'Bienvenida', image: 'cartel_bienvenida', x: 85, y: 82, width: 9 },
-  { id: 'estacion_metro', label: 'Metro', image: 'estacion_metro', x: 64.5, y: 57, width: 6 },
+  { id: 'universidad', label: 'Universidad', image: 'universidad', x: 32.88, y: 72.71, width: 12.5, flip: true },
+  { id: 'empresa', label: 'La Empresa', image: 'empresa', x: 53.48, y: 62.17, width: 11.99, rotate: -3, flip: true },
+  { id: 'taller', label: 'El Taller', image: 'taller', x: 60.11, y: 83.99, width: 11 },
+  { id: 'centro_civico', label: 'Centro Cívico', image: 'centro_civico', x: 99.03, y: 42.07, width: 9.5 },
+  { id: 'oficina_correos', label: 'Correos', image: 'oficina_correos', x: 61.64, y: 49.38, width: 9 },
+  { id: 'aeropuerto', label: 'Aeropuerto', image: 'aeropuerto', x: 24.2, y: 51.72, width: 16.5, flip: true },
+  { id: 'gimnasio', label: 'Gimnasio', image: 'gimnasio', x: 41.53, y: 53.81, width: 8.5 },
+  { id: 'cine', label: 'Cine', image: 'cine', x: 73.59, y: 72.88, width: 11, flip: true },
+  { id: 'arcade', label: 'Arcade', image: 'arcade', x: 51.13, y: 41.13, width: 9.5 },
+  { id: 'parque', label: 'El Parque', image: 'parque', x: 36.39, y: 39.48, width: 9.68 },
+  { id: 'cartel_bienvenida', label: 'Bienvenida', image: 'cartel_bienvenida', x: 82.44, y: 48.24, width: 10.44 },
+  { id: 'estacion_metro', label: 'Metro', image: 'estacion_metro', x: 43.72, y: 80.18, width: 6 },
 ]
 
 export interface HitArea {
