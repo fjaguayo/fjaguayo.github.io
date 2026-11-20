@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { BUILDINGS, type BuildingId } from '../data/buildings'
 import { ENTER_EVENT } from '../lib/enterBuilding'
+import { hasInterior } from '../interiors'
 
-/** Aviso discreto de "Próximamente" al hacer clic en un edificio (fase 1). */
+/** Aviso discreto de "Próximamente" al hacer clic en un edificio que aún no tiene interior. */
 export default function ComingSoon() {
   const [current, setCurrent] = useState<{ id: BuildingId; n: number } | null>(null)
 
   useEffect(() => {
     const onEnter = (e: Event) => {
       const id = (e as CustomEvent<BuildingId>).detail
+      if (hasInterior(id)) return
       setCurrent((prev) => ({ id, n: (prev?.n ?? 0) + 1 }))
     }
     window.addEventListener(ENTER_EVENT, onEnter)
