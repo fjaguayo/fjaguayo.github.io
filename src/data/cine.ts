@@ -33,12 +33,11 @@ export const CATEGORIES: Category[] = [
     id: 'series',
     label: 'Series',
     items: [
-      { title: 'House', year: '2004', imdbId: 'tt0412142' },
-      { title: 'El mentalista', year: '2008', imdbId: 'tt1196946' },
-      { title: 'Shameless', year: '2011', imdbId: 'tt1586680' },
-      { title: 'Friends', year: '1994', imdbId: 'tt0108778' },
-      { title: 'The Big Bang Theory', year: '2007', imdbId: 'tt0898266' },
-      { title: 'Grimm', year: '2011', imdbId: 'tt1830617' },
+      { title: 'House', year: '2004', imdbId: 'tt0412142', poster: 'tt0412142.webp' },
+      { title: 'El mentalista', year: '2008', imdbId: 'tt1196946', poster: 'tt1196946.webp' },
+      { title: 'Shameless', year: '2011', imdbId: 'tt1586680', poster: 'tt1586680.webp' },
+      { title: 'The Big Bang Theory', year: '2007', imdbId: 'tt0898266', poster: 'tt0898266.webp' },
+      { title: 'Grimm', year: '2011', imdbId: 'tt1830617', poster: 'tt1830617.webp' },
     ],
   },
   {
