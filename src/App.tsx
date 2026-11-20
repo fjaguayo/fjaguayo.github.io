@@ -6,7 +6,7 @@ import MusicToggle from './components/MusicToggle'
 import { BUILDINGS, type BuildingId } from './data/buildings'
 import { ENTER_EVENT } from './lib/enterBuilding'
 import { createAmbientMusic } from './lib/ambientMusic'
-import { INTERIORS } from './interiors'
+import { INTERIORS, KEEPS_MUSIC } from './interiors'
 
 // Modo de colocación: solo en desarrollo y con ?edit en la URL.
 // En producción esta rama desaparece del bundle.
@@ -35,11 +35,11 @@ export default function App() {
     }
   }, [unlocked])
 
-  // suena en la ciudad; se calla dentro de los edificios (el cine tiene su propio sonido)
+  // suena en la ciudad y en las fichas que se abren encima; se calla en el cine, que tiene su propio sonido
   useEffect(() => {
     const m = music.current
     if (!m || !unlocked) return
-    if (musicOn && !inside) m.play()
+    if (musicOn && (!inside || KEEPS_MUSIC.includes(inside))) m.play()
     else m.pause()
   }, [unlocked, musicOn, inside])
 
