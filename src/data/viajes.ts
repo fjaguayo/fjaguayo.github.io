@@ -22,6 +22,7 @@ export const VISITED: Country[] = [
   { name: 'Grecia', id: '300', lat: 39.2, lon: 22.0 },
   { name: 'Turquía', id: '792', lat: 39.0, lon: 35.2 },
   { name: 'Cabo Verde', id: '132', lat: 15.1, lon: -23.6 },
+  { name: 'República Dominicana', id: '214', lat: 18.8, lon: -70.3 },
   { name: 'Mauricio', id: '480', lat: -20.3, lon: 57.55 },
   { name: 'Maldivas', id: '462', lat: 3.2, lon: 73.2 },
 ]
