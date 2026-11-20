@@ -18,6 +18,8 @@ export default function App() {
   const [inside, setInside] = useState<BuildingId | null>(null)
   // al salir, el foco vuelve al edificio por el que se entró
   const returnFocus = useRef<HTMLElement | null>(null)
+  const insideRef = useRef<BuildingId | null>(null)
+  insideRef.current = inside
 
   // música de la ciudad: el navegador no deja sonar nada hasta el primer clic o tecla
   const music = useRef(createAmbientMusic())
@@ -47,7 +49,8 @@ export default function App() {
     const onEnter = (e: Event) => {
       const id = (e as CustomEvent<BuildingId>).detail
       if (!INTERIORS[id]) return
-      returnFocus.current = document.activeElement as HTMLElement | null
+      // desde el metro se salta de un interior a otro: el foco vuelve al edificio por el que se entró al principio
+      if (!insideRef.current) returnFocus.current = document.activeElement as HTMLElement | null
       setInside(id)
     }
     window.addEventListener(ENTER_EVENT, onEnter)
@@ -72,7 +75,7 @@ export default function App() {
         {music.current && <MusicToggle on={musicOn} onToggle={() => setMusicOn((v) => !v)} />}
       </div>
 
-      <AnimatePresence onExitComplete={() => returnFocus.current?.focus({ preventScroll: true })}>
+      <AnimatePresence mode="wait" onExitComplete={() => !insideRef.current && returnFocus.current?.focus({ preventScroll: true })}>
         {Interior && (
           <motion.div
             key={inside}

@@ -40,13 +40,6 @@ export default function CvInterior({ onExit }: Props) {
             >
               Abrir en otra pestaña
             </a>
-            <a
-              href={CV_URL}
-              download="CV_Francisco_Javier_Aguayo.pdf"
-              className="rounded-lg border-[3px] border-ink bg-berry px-3 py-1.5 text-sm font-bold text-white no-underline shadow-[3px_3px_0_var(--color-ink)] transition-transform hover:-translate-y-0.5 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-sky"
-            >
-              Descargar PDF
-            </a>
           </div>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto bg-[#d9d4c7] p-4">

@@ -14,9 +14,10 @@ export const INTERIORS: Partial<Record<BuildingId, LazyExoticComponent<Component
   cartel_bienvenida: lazy(() => import('./components/interiors/CvInterior')),
   centro_civico: lazy(() => import('./components/interiors/SocialInterior')),
   aeropuerto: lazy(() => import('./components/interiors/AeropuertoInterior')),
+  estacion_metro: lazy(() => import('./components/interiors/MetroInterior')),
 }
 
 /** Interiores en los que la música de la ciudad sigue sonando de fondo. */
-export const KEEPS_MUSIC: BuildingId[] = ['cartel_bienvenida', 'centro_civico', 'aeropuerto']
+export const KEEPS_MUSIC: BuildingId[] = ['cartel_bienvenida', 'centro_civico', 'aeropuerto', 'estacion_metro']
 
 export const hasInterior = (id: BuildingId) => id in INTERIORS
