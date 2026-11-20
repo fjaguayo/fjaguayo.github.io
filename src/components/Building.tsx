@@ -17,6 +17,8 @@ export default function Building({ building, editing = false }: Props) {
   // con espejo, el punto de apoyo también se refleja
   const ax = flip ? 1 - hit.anchor[0] : hit.anchor[0]
   const ay = hit.anchor[1]
+  // contorno exterior y huecos en un solo trazado; con evenodd los huecos quedan fuera
+  const hitPath = hit.polygons.map((poly) => `M${poly.map(([px, py]) => `${px},${py}`).join('L')}Z`).join('')
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
   const active = !editing && (hovered || focused)
@@ -73,16 +75,14 @@ export default function Building({ building, editing = false }: Props) {
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          {hit.polygons.map((poly, i) => (
-            <polygon
-              key={i}
-              points={poly.map(([px, py]) => `${px},${py}`).join(' ')}
-              fill="transparent"
-              style={{ pointerEvents: editing ? 'none' : 'auto' }}
-              onPointerEnter={() => setHovered(true)}
-              onPointerLeave={() => setHovered(false)}
-            />
-          ))}
+          <path
+            d={hitPath}
+            fill="transparent"
+            fillRule="evenodd"
+            style={{ pointerEvents: editing ? 'none' : 'auto' }}
+            onPointerEnter={() => setHovered(true)}
+            onPointerLeave={() => setHovered(false)}
+          />
         </svg>
         </div>
         </div>

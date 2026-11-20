@@ -40,7 +40,40 @@ def save_rgba(arr: np.ndarray, out_dir: str, name: str, png_dir: str | None):
         img.save(f"{png_dir}/{name}.png", optimize=True)
 
 
-def process(src: str, out_dir: str, name: str, final_w: int = 640, png_dir: str | None = None) -> dict:
+def trapped_background(rgb: np.ndarray, bg: np.ndarray, white_holes: bool, seeds) -> np.ndarray:
+    """Fondo blanco encerrado dentro del dibujo (p. ej. el hueco entre el brazo robótico y el edificio).
+
+    El relleno de huecos lo trataría como pared blanca, así que se marca aparte:
+    - white_holes: todos los huecos de blanco puro (media de cada canal >= 250). Solo para assets
+      sin zonas blancas puras dibujadas, porque el fuselaje de un avión, por ejemplo, también lo es.
+    - seeds: puntos (x, y) en píxeles del original; el hueco blanco que contiene cada uno es fondo.
+    """
+    mn = rgb.min(axis=2)
+    holes = (mn > 228) & ~bg
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(holes.astype(np.uint8), connectivity=4)
+    out = np.zeros(bg.shape, bool)
+    if white_holes:
+        for i in range(1, n):
+            if stats[i, cv2.CC_STAT_AREA] >= 300 and rgb[lab == i].mean(axis=0).min() >= 250:
+                out |= lab == i
+    for x, y in seeds:
+        if lab[y, x]:
+            out |= lab == lab[y, x]
+    # incluir el borde antialiasado claro que rodea al hueco, para que no quede halo
+    lum = rgb.mean(axis=2)
+    ring = cv2.dilate(out.astype(np.uint8), np.ones((3, 3), np.uint8), iterations=2).astype(bool)
+    return out | (ring & (lum > 200))
+
+
+def process(
+    src: str,
+    out_dir: str,
+    name: str,
+    final_w: int = 640,
+    png_dir: str | None = None,
+    white_holes: bool = False,
+    seeds=(),
+) -> dict:
     rgb = np.array(Image.open(src).convert("RGB")).astype(np.int16)
     h, w, _ = rgb.shape
     mn = rgb.min(axis=2)
@@ -49,6 +82,8 @@ def process(src: str, out_dir: str, name: str, final_w: int = 640, png_dir: str 
 
     # 1) fondo: casi blanco y conectado al borde de la imagen
     bg = connected_to_border(mn > 228)
+    # 1b) fondo atrapado dentro del dibujo
+    trapped = trapped_background(rgb, bg, white_holes, seeds)
 
     # 2) sombra suave lavanda alrededor de la base: clara, poco saturada, pegada al fondo
     light = (lum > 150) & ((mx - mn) < 60) & ~bg
@@ -72,7 +107,7 @@ def process(src: str, out_dir: str, name: str, final_w: int = 640, png_dir: str 
     ff = np.zeros((h + 2, w + 2), np.uint8)
     inv = (1 - filled).astype(np.uint8)
     cv2.floodFill(inv, ff, (0, 0), 0)
-    building = (filled | inv).astype(bool)
+    building = (filled | inv).astype(bool) & ~trapped
 
     # alpha del edificio con borde suavizado (quita el halo blanco del JPG)
     core = cv2.erode(building.astype(np.uint8), np.ones((3, 3), np.uint8), iterations=1)
@@ -136,12 +171,14 @@ def process(src: str, out_dir: str, name: str, final_w: int = 640, png_dir: str 
 
     # contorno del edificio (sin sombra) para la zona clicable
     hit_mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, disk(3))
-    contours, _ = cv2.findContours(hit_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # RETR_CCOMP también devuelve los huecos (fondo atrapado); la web los dibuja con evenodd,
+    # así que un hueco dentro del contorno no responde al ratón.
+    contours, _ = cv2.findContours(hit_mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
     contours = [c for c in contours if cv2.contourArea(c) > 0]
     biggest = max(cv2.contourArea(c) for c in contours)
     polygons = []
     for c in sorted(contours, key=cv2.contourArea, reverse=True):
-        if cv2.contourArea(c) < biggest * 0.01:
+        if cv2.contourArea(c) < biggest * 0.002:
             continue
         approx = cv2.approxPolyDP(c, 2.0, True)[:, 0, :]
         polygons.append([[round(float(x) / size[0], 4), round(float(y) / size[1], 4)] for x, y in approx])

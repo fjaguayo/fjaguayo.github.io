@@ -39,6 +39,19 @@ BUILDINGS = {
     "estacion_metro": "Metro.jpg",
 }
 
+# Fondo blanco que queda encerrado dentro del dibujo y debe ser transparente.
+# "white_holes": todos los huecos de blanco puro (assets sin blancos puros dibujados).
+# "seeds": puntos (x, y) en píxeles del JPG original, uno dentro de cada hueco.
+TRAPPED = {
+    "empresa": {"white_holes": True},  # entre el brazo robótico y el edificio
+    "cine": {"white_holes": True},  # dentro de los cordones de la alfombra roja
+    "cartel_bienvenida": {"white_holes": True},  # bajo el cartel, entre los postes
+    "estacion_metro": {"white_holes": True},  # entre los barrotes de la barandilla
+    "taller": {"seeds": [(1044, 351), (940, 359), (384, 799)]},  # llave/engranaje y tubería
+    "centro_civico": {"seeds": [(1444, 672), (1480, 715)]},  # dentro del muelle de la antena
+    "aeropuerto": {"seeds": [(463, 1461)]},  # dentro del carro de equipajes
+}
+
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
@@ -51,7 +64,7 @@ def main():
 
     hit = {}
     for bid, fname in BUILDINGS.items():
-        hit[bid] = process(str(SRC / fname), str(OUT), bid, png_dir=str(PNG))
+        hit[bid] = process(str(SRC / fname), str(OUT), bid, png_dir=str(PNG), **TRAPPED.get(bid, {}))
 
     DATA.write_text(json.dumps(hit, separators=(",", ":")) + "\n", encoding="utf-8")
     print(f"Escrito {DATA.relative_to(ROOT)}")

@@ -57,7 +57,7 @@ export interface HitArea {
   height: number
   /** Punto de apoyo de la base dentro de la imagen (0–1). */
   anchor: [number, number]
-  /** Contorno del dibujo (0–1), sin la sombra. */
+  /** Contorno del dibujo (0–1), sin la sombra, más los huecos de fondo atrapado (se combinan con evenodd). */
   polygons: [number, number][][]
 }
 
