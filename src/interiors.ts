@@ -12,9 +12,10 @@ export interface InteriorProps {
 export const INTERIORS: Partial<Record<BuildingId, LazyExoticComponent<ComponentType<InteriorProps>>>> = {
   cine: lazy(() => import('./components/interiors/CineInterior')),
   cartel_bienvenida: lazy(() => import('./components/interiors/CvInterior')),
+  centro_civico: lazy(() => import('./components/interiors/SocialInterior')),
 }
 
 /** Interiores que se abren encima de la ciudad: la música sigue sonando de fondo. */
-export const KEEPS_MUSIC: BuildingId[] = ['cartel_bienvenida']
+export const KEEPS_MUSIC: BuildingId[] = ['cartel_bienvenida', 'centro_civico']
 
 export const hasInterior = (id: BuildingId) => id in INTERIORS
