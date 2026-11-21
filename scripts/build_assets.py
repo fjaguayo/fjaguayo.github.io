@@ -40,6 +40,7 @@ BUILDINGS = {
     "parque": "Recreativo.jpg",
     "cartel_bienvenida": "Cartel.jpg",
     "estacion_metro": "Metro.jpg",
+    "casa": "Casa.png",
 }
 
 # Fondo blanco que queda encerrado dentro del dibujo y debe ser transparente.

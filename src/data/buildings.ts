@@ -13,6 +13,7 @@ export type BuildingId =
   | 'parque'
   | 'cartel_bienvenida'
   | 'estacion_metro'
+  | 'casa'
 
 export interface BuildingConfig {
   id: BuildingId
@@ -35,7 +36,7 @@ export interface BuildingConfig {
 /** Tamaño original del mapa, para mantener su proporción. */
 export const MAP_SIZE = { width: 2752, height: 1536 }
 
-// Colocación elegida por Javier en el editor (20/11/2026).
+// Colocación elegida por Javier en el editor (20/11/2026; casa añadida el 21/11/2026).
 // Para afinarla a ojo: `npm run dev` y abrir http://localhost:5173/?edit
 export const BUILDINGS: BuildingConfig[] = [
   { id: 'universidad', label: 'Universidad', image: 'universidad', x: 32.88, y: 72.71, width: 12.5, flip: true },
@@ -47,9 +48,10 @@ export const BUILDINGS: BuildingConfig[] = [
   { id: 'gimnasio', label: 'Gimnasio', image: 'gimnasio', x: 36.02, y: 39.56, width: 8.5, flip: true },
   { id: 'cine', label: 'Cine', image: 'cine', x: 73.59, y: 72.88, width: 11, flip: true },
   { id: 'arcade', label: 'Arcade', image: 'arcade', x: 47.25, y: 37.24, width: 9.5 },
-  { id: 'parque', label: 'El Parque', image: 'parque', x: 70.19, y: 42.6, width: 9.68 },
-  { id: 'cartel_bienvenida', label: 'Bienvenida', image: 'cartel_bienvenida', x: 82.44, y: 48.24, width: 10.44 },
+  { id: 'parque', label: 'El Parque', image: 'parque', x: 70.53, y: 43.18, width: 10.43 },
+  { id: 'cartel_bienvenida', label: 'Bienvenida', image: 'cartel_bienvenida', x: 57.24, y: 37.06, width: 10.44 },
   { id: 'estacion_metro', label: 'Metro', image: 'estacion_metro', x: 40.7, y: 54.04, width: 7.86 },
+  { id: 'casa', label: 'Casa', image: 'casa', x: 81.73, y: 49.84, width: 11.61 },
 ]
 
 export interface HitArea {
