@@ -58,16 +58,17 @@ export default function CorreosInterior({ onExit }: Props) {
   }
 
   const field =
-    'w-full rounded-lg border-[3px] border-ink bg-white px-3 py-2 text-[15px] text-ink outline-none placeholder:text-ink/40 focus-visible:border-sky'
+    // 16 px en el móvil: con menos, el iPhone hace zoom al escribir
+    'w-full rounded-lg border-[3px] border-ink bg-white px-3 py-2 text-base text-ink outline-none placeholder:text-ink/40 focus-visible:border-sky sm:text-[15px]'
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4">
+    <div className="fixed inset-0 flex overflow-y-auto overscroll-contain px-4 pt-20 pb-4 compact:px-3 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+16px)]">
       <button
         type="button"
         aria-label="Cerrar Correos"
         tabIndex={-1}
         onClick={onExit}
-        className="absolute inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
+        className="fixed inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
       />
 
       <motion.section
@@ -75,12 +76,12 @@ export default function CorreosInterior({ onExit }: Props) {
         initial={{ y: 40, rotate: -2, scale: 0.94, opacity: 0 }}
         animate={{ y: 0, rotate: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-        className="relative w-[min(980px,94vw)]"
+        className="relative m-auto w-[min(980px,94vw)] compact:w-full compact:max-w-[980px]"
       >
         {/* la postal */}
         <form
           onSubmit={submit}
-          className="relative grid grid-cols-[1.25fr_1fr] overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)]"
+          className="relative grid grid-cols-1 overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)] sm:grid-cols-[1.25fr_1fr] compact:shadow-[5px_5px_0_var(--color-ink)]"
         >
           {/* franja de correo aéreo */}
           <div
@@ -90,8 +91,8 @@ export default function CorreosInterior({ onExit }: Props) {
           />
 
           {/* lado izquierdo: el mensaje */}
-          <div className="flex flex-col gap-3 border-r-[3px] border-dashed border-ink/40 p-6 pt-8">
-            <h2 className="m-0 font-display text-3xl uppercase leading-none tracking-wide text-ink">¡Escríbeme!</h2>
+          <div className="flex flex-col gap-3 border-b-[3px] border-dashed border-ink/40 p-6 pt-8 sm:border-r-[3px] sm:border-b-0 compact:p-4 compact:pt-6">
+            <h2 className="m-0 font-display text-3xl uppercase leading-none tracking-wide text-ink compact:text-2xl">¡Escríbeme!</h2>
             <label className="sr-only" htmlFor="postal-mensaje">
               Mensaje
             </label>
@@ -102,14 +103,14 @@ export default function CorreosInterior({ onExit }: Props) {
               value={form.message}
               onChange={(e) => setForm({ ...form, message: e.target.value })}
               placeholder="Hola Javier, te escribo porque…"
-              className="w-full flex-1 resize-none rounded-lg border-0 bg-transparent px-1 text-[17px] leading-[32px] text-ink outline-none placeholder:text-ink/40 focus-visible:bg-white/50"
+              className="w-full flex-1 resize-none rounded-lg border-0 bg-transparent px-1 text-[17px] max-sm:h-[160px] short:h-[160px] leading-[32px] text-ink outline-none placeholder:text-ink/40 focus-visible:bg-white/50"
               // renglones de papel de carta
               style={{ backgroundImage: 'repeating-linear-gradient(transparent 0 31px, #1b1b2f22 31px 32px)', backgroundAttachment: 'local' }}
             />
           </div>
 
           {/* lado derecho: sello, remitente y destinatario */}
-          <div className="flex flex-col gap-4 p-6 pt-8">
+          <div className="flex flex-col gap-4 p-6 pt-8 compact:gap-3 compact:p-4 compact:pt-4">
             <fieldset className="m-0 border-0 p-0">
               <legend className="mb-2 text-sm font-bold text-ink">Elige un sello</legend>
               <div className="flex gap-2">
@@ -195,9 +196,9 @@ export default function CorreosInterior({ onExit }: Props) {
                   initial={{ scale: 2.4, rotate: -30, opacity: 0 }}
                   animate={{ scale: 1, rotate: -12, opacity: 1 }}
                   transition={{ type: 'spring', stiffness: 420, damping: 18 }}
-                  className="flex h-56 w-56 flex-col items-center justify-center rounded-full border-[10px] border-double border-berry text-center text-berry"
+                  className="flex h-56 w-56 flex-col items-center justify-center rounded-full border-[10px] border-double border-berry text-center text-berry compact:h-44 compact:w-44"
                 >
-                  <span className="font-display text-5xl leading-none uppercase">Enviado</span>
+                  <span className="font-display text-5xl leading-none uppercase compact:text-4xl">Enviado</span>
                   <span className="mt-2 text-sm font-bold uppercase tracking-widest">FJAH City</span>
                   <span className="text-sm font-bold">{new Date().toLocaleDateString('es-ES')}</span>
                 </motion.div>
@@ -207,8 +208,8 @@ export default function CorreosInterior({ onExit }: Props) {
         </form>
 
         {/* atajos para escribir con tu propio correo */}
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-          <span className="text-sm font-semibold text-cream">¿Prefieres tu correo?</span>
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 compact:mt-4 compact:gap-2">
+          <span className="text-sm font-semibold text-cream max-sm:w-full max-sm:text-center">¿Prefieres tu correo?</span>
           <a
             href={gmailUrl()}
             target="_blank"

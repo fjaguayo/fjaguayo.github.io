@@ -18,6 +18,8 @@ const PIN = '#ee4266'
 
 const R = 1
 const START_DISTANCE = 14
+/** Campo de visión vertical en pantallas apaisadas. */
+const BASE_FOV = 40
 const VIEW_DISTANCE = 3.3
 
 /** Punto de la esfera para una latitud/longitud (misma convención que la textura equirectangular). */
@@ -115,7 +117,7 @@ export class Globe {
     this.renderer.domElement.style.display = 'block'
     this.renderer.domElement.style.touchAction = 'none'
 
-    this.camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200)
+    this.camera = new THREE.PerspectiveCamera(BASE_FOV, 1, 0.1, 200)
     // empieza lejos y mirando a Europa, donde están casi todas las chinchetas
     this.camera.position.copy(latLonToVec(38, 10, START_DISTANCE))
 
@@ -326,6 +328,9 @@ export class Globe {
     this.renderer.domElement.style.width = '100%'
     this.renderer.domElement.style.height = '100%'
     this.camera.aspect = w / h
+    // en vertical (móvil) se abre el campo de visión para que el globo quepa también a lo ancho
+    const half = THREE.MathUtils.degToRad(BASE_FOV / 2)
+    this.camera.fov = w >= h ? BASE_FOV : THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(half) / (w / h)))
     this.camera.updateProjectionMatrix()
   }
 

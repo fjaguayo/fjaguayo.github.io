@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { MAP_SIZE, assetUrl } from '../../data/buildings'
 import { CATEGORIES, imdbUrl, posterUrl, type CategoryId, type Title } from '../../data/cine'
 import { playTadum } from '../../lib/tadum'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import ExitButton from './ExitButton'
 
 interface Props {
@@ -15,6 +16,12 @@ const ratio = MAP_SIZE.width / MAP_SIZE.height
 // Hueco negro de la pantalla dentro de Cine_pantalla.jpg, en % de la imagen.
 const SCREEN = { left: 19.8, top: 20.7, width: 60.07, height: 41.28 }
 
+/**
+ * En pantallas pequeñas (móvil, tableta en vertical) el hueco de la pantalla del dibujo es diminuto:
+ * entonces el catálogo se enseña a pantalla completa, con la sala de fondo.
+ */
+const TV_QUERY = '(max-width: 899px), (max-height: 540px), (max-aspect-ratio: 10/7)'
+
 // Duración de la intro (logo + sonido) antes de enseñar el catálogo, en ms.
 const INTRO_MS = 2300
 
@@ -23,6 +30,7 @@ export default function CineInterior({ onExit }: Props) {
   const [phase, setPhase] = useState<'intro' | 'ui'>('intro')
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([])
   const category = CATEGORIES.find((c) => c.id === active)!
+  const tv = useMediaQuery(TV_QUERY)
 
   // sonido de apertura e intro; un clic o una tecla (que no sea Escape) la salta
   useEffect(() => {
@@ -51,6 +59,115 @@ export default function CineInterior({ onExit }: Props) {
     tabsRef.current[next]?.focus()
   }
 
+  // la pantalla: un Netflix en miniatura
+  const screen = (
+        <motion.section
+          aria-label="FJAHFLIX, series y películas favoritas"
+          initial={{ opacity: 0, filter: 'brightness(2.4)' }}
+          animate={{ opacity: [0, 1, 0.75, 1], filter: 'brightness(1)' }}
+          transition={{ duration: 0.6, delay: 0.1, times: [0, 0.4, 0.6, 1], ease: 'easeOut' }}
+          className={`absolute flex flex-col overflow-hidden bg-[#141414] text-white [container-type:inline-size] ${
+            tv ? 'rounded-xl border-[3px] border-white/10' : 'rounded-[calc(var(--u)*0.35)]'
+          }`}
+          style={
+            tv
+              ? {
+                  // la unidad crece con la pantalla del móvil, sin pasarse del alto en horizontal
+                  ['--u' as string]: 'min(2.5vw, 2.2dvh)',
+                  ['--intro' as string]: 'min(13vw, 16dvh)',
+                  left: 'calc(var(--safe-left) + 8px)',
+                  right: 'calc(var(--safe-right) + 8px)',
+                  top: 'calc(var(--safe-top) + 64px)',
+                  bottom: 'calc(var(--safe-bottom) + 8px)',
+                  boxShadow: '0 0 40px 6px rgba(229, 9, 20, 0.18)',
+                }
+              : {
+                  ['--u' as string]: '1cqw',
+                  ['--intro' as string]: '9cqw',
+                  left: `${SCREEN.left}%`,
+                  top: `${SCREEN.top}%`,
+                  width: `${SCREEN.width}%`,
+                  height: `${SCREEN.height}%`,
+                  boxShadow: '0 0 2.5cqw 0.4cqw rgba(229, 9, 20, 0.18)',
+                }
+          }
+        >
+          <AnimatePresence>{phase === 'intro' && <Intro key="intro" />}</AnimatePresence>
+
+          {phase === 'ui' && (
+            <motion.div
+              className="flex min-h-0 flex-1 flex-col"
+              initial={{ opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
+            >
+              <header className="flex min-h-[calc(var(--u)*5)] shrink-0 flex-wrap items-center gap-x-[calc(var(--u)*3)] gap-y-[calc(var(--u)*0.6)] bg-gradient-to-b from-black/80 to-transparent px-[calc(var(--u)*2.6)] pt-[calc(var(--u)*0.6)]">
+                <span
+                  className="font-display text-[length:calc(var(--u)*2.7)] leading-none tracking-[0.06em] text-[#e50914]"
+                  style={{ textShadow: '0 calc(var(--u) * 0.15) 0 #000' }}
+                >
+                  FJAHFLIX
+                </span>
+                <div role="tablist" aria-label="Categorías" className="no-scrollbar -mx-[calc(var(--u)*2.6)] flex max-w-[calc(100%_+_var(--u)*5.2)] min-w-0 gap-[calc(var(--u)*2)] overflow-x-auto px-[calc(var(--u)*2.6)]">
+                  {CATEGORIES.map((c, i) => {
+                    const selected = c.id === active
+                    return (
+                      <button
+                        key={c.id}
+                        ref={(el) => {
+                          tabsRef.current[i] = el
+                        }}
+                        role="tab"
+                        id={`tab-${c.id}`}
+                        aria-selected={selected}
+                        aria-controls="cine-panel"
+                        tabIndex={selected ? 0 : -1}
+                        onClick={() => setActive(c.id)}
+                        onKeyDown={(e) => onTabKey(e, i)}
+                        className={`relative shrink-0 cursor-pointer border-0 bg-transparent px-0 py-[calc(var(--u)*0.4)] whitespace-nowrap text-[length:calc(var(--u)*1.45)] font-semibold transition-colors outline-none focus-visible:text-white ${
+                          selected ? 'text-white' : 'text-white/55 hover:text-white/85'
+                        }`}
+                      >
+                        {c.label}
+                        {selected && (
+                          <motion.span
+                            layoutId="cine-tab-underline"
+                            className="absolute right-0 -bottom-[calc(var(--u)*0.1)] left-0 h-[calc(var(--u)*0.22)] rounded-full bg-[#e50914]"
+                            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                          />
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </header>
+
+              <div id="cine-panel" role="tabpanel" aria-labelledby={`tab-${active}`} className="relative min-h-0 flex-1">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={active}
+                    initial={{ opacity: 0, x: 18 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -18 }}
+                    transition={{ duration: 0.22, ease: 'easeOut' }}
+                    // título y fila centrados en el alto que queda bajo la cabecera
+                    className="absolute inset-0 flex flex-col justify-center"
+                  >
+                    <h2 className="m-0 px-[calc(var(--u)*2.6)] text-[length:calc(var(--u)*1.8)] font-bold leading-none">
+                      {category.label}
+                      <span className="ml-[calc(var(--u)*0.9)] text-[length:calc(var(--u)*1.1)] font-medium text-white/45">
+                        {category.items.length} títulos
+                      </span>
+                    </h2>
+                    <PosterRow items={category.items} />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </motion.section>
+  )
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-black">
       <div
@@ -72,100 +189,14 @@ export default function CineInterior({ onExit }: Props) {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-black"
           initial={{ opacity: 1 }}
-          animate={{ opacity: phase === 'intro' ? 0.15 : 0.32 }}
+          animate={{ opacity: tv ? 0.6 : phase === 'intro' ? 0.15 : 0.32 }}
           transition={{ duration: phase === 'intro' ? 0.6 : 1.2, ease: 'easeOut' }}
         />
 
-        {/* la pantalla: un Netflix en miniatura */}
-        <motion.section
-          aria-label="FJAHFLIX, series y películas favoritas"
-          initial={{ opacity: 0, filter: 'brightness(2.4)' }}
-          animate={{ opacity: [0, 1, 0.75, 1], filter: 'brightness(1)' }}
-          transition={{ duration: 0.6, delay: 0.1, times: [0, 0.4, 0.6, 1], ease: 'easeOut' }}
-          className="absolute flex flex-col overflow-hidden rounded-[0.35cqw] bg-[#141414] text-white [container-type:inline-size]"
-          style={{
-            left: `${SCREEN.left}%`,
-            top: `${SCREEN.top}%`,
-            width: `${SCREEN.width}%`,
-            height: `${SCREEN.height}%`,
-            boxShadow: '0 0 2.5cqw 0.4cqw rgba(229, 9, 20, 0.18)',
-          }}
-        >
-          <AnimatePresence>{phase === 'intro' && <Intro key="intro" />}</AnimatePresence>
-
-          {phase === 'ui' && (
-            <motion.div
-              className="flex min-h-0 flex-1 flex-col"
-              initial={{ opacity: 0, scale: 1.04 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
-            >
-              <header className="flex h-[5cqw] shrink-0 items-center gap-[3cqw] bg-gradient-to-b from-black/80 to-transparent px-[2.6cqw] pt-[0.6cqw]">
-                <span
-                  className="font-display text-[2.7cqw] leading-none tracking-[0.06em] text-[#e50914]"
-                  style={{ textShadow: '0 0.15cqw 0 #000' }}
-                >
-                  FJAHFLIX
-                </span>
-                <div role="tablist" aria-label="Categorías" className="flex gap-[2cqw]">
-                  {CATEGORIES.map((c, i) => {
-                    const selected = c.id === active
-                    return (
-                      <button
-                        key={c.id}
-                        ref={(el) => {
-                          tabsRef.current[i] = el
-                        }}
-                        role="tab"
-                        id={`tab-${c.id}`}
-                        aria-selected={selected}
-                        aria-controls="cine-panel"
-                        tabIndex={selected ? 0 : -1}
-                        onClick={() => setActive(c.id)}
-                        onKeyDown={(e) => onTabKey(e, i)}
-                        className={`relative cursor-pointer border-0 bg-transparent px-0 py-[0.4cqw] text-[1.45cqw] font-semibold transition-colors outline-none focus-visible:text-white ${
-                          selected ? 'text-white' : 'text-white/55 hover:text-white/85'
-                        }`}
-                      >
-                        {c.label}
-                        {selected && (
-                          <motion.span
-                            layoutId="cine-tab-underline"
-                            className="absolute right-0 -bottom-[0.1cqw] left-0 h-[0.22cqw] rounded-full bg-[#e50914]"
-                            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                          />
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </header>
-
-              <div id="cine-panel" role="tabpanel" aria-labelledby={`tab-${active}`} className="relative min-h-0 flex-1">
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={active}
-                    initial={{ opacity: 0, x: '2cqw' }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: '-2cqw' }}
-                    transition={{ duration: 0.22, ease: 'easeOut' }}
-                    // título y fila centrados en el alto que queda bajo la cabecera
-                    className="absolute inset-0 flex flex-col justify-center"
-                  >
-                    <h2 className="m-0 px-[2.6cqw] text-[1.8cqw] font-bold leading-none">
-                      {category.label}
-                      <span className="ml-[0.9cqw] text-[1.1cqw] font-medium text-white/45">
-                        {category.items.length} títulos
-                      </span>
-                    </h2>
-                    <PosterRow items={category.items} />
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          )}
-        </motion.section>
+        {!tv && screen}
       </div>
+
+      {tv && screen}
 
       <ExitButton onExit={onExit} />
     </div>
@@ -189,12 +220,12 @@ function Intro() {
         transition={{ duration: 1.6, times: [0, 0.25, 0.32, 1], ease: 'easeOut' }}
       />
       <motion.span
-        className="relative font-display text-[9cqw] leading-none tracking-[0.08em] text-[#e50914]"
-        style={{ textShadow: '0 0 2cqw rgba(229,9,20,0.6), 0 0.4cqw 0 #000' }}
+        className="relative font-display text-[length:var(--intro)] leading-none tracking-[0.08em] text-[#e50914]"
+        style={{ textShadow: '0 0 calc(var(--u) * 2) rgba(229,9,20,0.6), 0 calc(var(--u) * 0.4) 0 #000' }}
         initial={{ opacity: 0, scale: 0.55, letterSpacing: '0.3em' }}
         animate={{ opacity: [0, 1, 1], scale: [0.55, 0.92, 1], letterSpacing: ['0.3em', '0.1em', '0.08em'] }}
         transition={{ duration: 1.4, times: [0, 0.25, 1], ease: 'easeOut' }}
-        exit={{ scale: 5, opacity: 0, filter: 'blur(1cqw)', transition: { duration: 0.55, ease: 'easeIn' } }}
+        exit={{ scale: 5, opacity: 0, filter: 'blur(8px)', transition: { duration: 0.55, ease: 'easeIn' } }}
       >
         FJAHFLIX
       </motion.span>
@@ -229,7 +260,7 @@ function PosterRow({ items }: { items: Title[] }) {
       <ul
         ref={ref}
         onScroll={update}
-        className="m-0 flex list-none snap-x snap-mandatory gap-[1cqw] overflow-x-auto scroll-px-[2.6cqw] px-[2.6cqw] py-[1.2cqw] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="m-0 flex list-none snap-x snap-mandatory gap-[calc(var(--u)*1)] overflow-x-auto scroll-px-[calc(var(--u)*2.6)] px-[calc(var(--u)*2.6)] py-[calc(var(--u)*1.2)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((t) => (
           <li key={t.imdbId} className="shrink-0 snap-start">
@@ -250,11 +281,11 @@ function Arrow({ dir, hidden, onClick }: { dir: 1 | -1; hidden: boolean; onClick
       aria-label={dir === 1 ? 'Ver más títulos' : 'Ver títulos anteriores'}
       onClick={onClick}
       tabIndex={-1}
-      className={`absolute top-[1.2cqw] bottom-[1.2cqw] z-20 flex w-[2.6cqw] cursor-pointer items-center justify-center border-0 text-[2.4cqw] text-white opacity-0 transition-opacity group-hover/row:opacity-100 ${
+      className={`absolute top-[calc(var(--u)*1.2)] bottom-[calc(var(--u)*1.2)] z-20 flex w-[calc(var(--u)*2.6)] cursor-pointer items-center justify-center border-0 text-[length:calc(var(--u)*2.4)] text-white opacity-0 transition-opacity group-hover/row:opacity-100 ${
         dir === 1 ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'
       } from-black/85 to-black/20 ${hidden ? 'pointer-events-none !opacity-0' : ''}`}
     >
-      <svg viewBox="0 0 24 24" className="h-[2cqw] w-[2cqw]" fill="none" stroke="currentColor" strokeWidth={3}>
+      <svg viewBox="0 0 24 24" className="h-[calc(var(--u)*2)] w-[calc(var(--u)*2)]" fill="none" stroke="currentColor" strokeWidth={3}>
         <path d={dir === 1 ? 'M9 5l7 7-7 7' : 'M15 5l-7 7 7 7'} strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </button>
@@ -277,8 +308,8 @@ function Poster({ item }: { item: Title }) {
       whileFocus="hover"
       variants={{ rest: { scale: 1, zIndex: 0 }, hover: { scale: 1.05, zIndex: 10 } }}
       transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-      // 17cqw: cinco carátulas llenan el ancho útil de la pantalla y caben en su alto
-      className="relative block aspect-[2/3] w-[17cqw] overflow-hidden rounded-[0.45cqw] bg-[#222] shadow-[0_0.4cqw_1cqw_rgba(0,0,0,0.6)] outline-none focus-visible:ring-[0.25cqw] focus-visible:ring-white"
+      // 17 unidades: cinco carátulas llenan el ancho útil de la pantalla y caben en su alto
+      className="relative block aspect-[2/3] w-[calc(var(--u)*17)] overflow-hidden rounded-[calc(var(--u)*0.45)] bg-[#222] shadow-[0_calc(var(--u)*0.4)_var(--u)_rgba(0,0,0,0.6)] outline-none focus-visible:ring-[length:calc(var(--u)*0.25)] focus-visible:ring-white"
     >
       {showImage ? (
         <img
@@ -296,12 +327,12 @@ function Poster({ item }: { item: Title }) {
       <motion.div
         variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
         transition={{ duration: 0.18 }}
-        className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/40 to-transparent p-[0.9cqw]"
+        className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/40 to-transparent p-[calc(var(--u)*0.9)]"
       >
-        <span className="text-[1.3cqw] font-bold leading-tight">{item.title}</span>
-        <span className="mt-[0.4cqw] flex items-center justify-between text-[0.95cqw] text-white/70">
+        <span className="text-[length:calc(var(--u)*1.3)] font-bold leading-tight">{item.title}</span>
+        <span className="mt-[calc(var(--u)*0.4)] flex items-center justify-between text-[length:calc(var(--u)*0.95)] text-white/70">
           {item.tag ? `${item.year} · ${item.tag}` : item.year}
-          <span className="rounded-[0.25cqw] bg-[#f5c518] px-[0.5cqw] py-[0.1cqw] text-[0.85cqw] font-black text-black">
+          <span className="rounded-[calc(var(--u)*0.25)] bg-[#f5c518] px-[calc(var(--u)*0.5)] py-[calc(var(--u)*0.1)] text-[length:calc(var(--u)*0.85)] font-black text-black">
             IMDb
           </span>
         </span>
@@ -316,16 +347,16 @@ function FallbackCover({ item }: { item: Title }) {
   for (const ch of item.title) h = (h * 31 + ch.charCodeAt(0)) % 360
   return (
     <div
-      className="absolute inset-0 flex flex-col justify-between p-[1cqw]"
+      className="absolute inset-0 flex flex-col justify-between p-[calc(var(--u)*1)]"
       style={{ background: `linear-gradient(160deg, hsl(${h} 55% 32%), hsl(${(h + 40) % 360} 60% 12%))` }}
     >
-      <span className="font-display text-[1.5cqw] leading-none text-[#e50914]" style={{ textShadow: '0 0.1cqw 0 #000' }}>
+      <span className="font-display text-[length:calc(var(--u)*1.5)] leading-none text-[#e50914]" style={{ textShadow: '0 calc(var(--u) * 0.1) 0 #000' }}>
         F
       </span>
       <motion.span
         variants={{ rest: { opacity: 1 }, hover: { opacity: 0 } }}
         transition={{ duration: 0.15 }}
-        className="font-display text-[1.7cqw] leading-[1.05] tracking-wide break-words uppercase"
+        className="font-display text-[length:calc(var(--u)*1.7)] leading-[1.05] tracking-wide break-words uppercase"
       >
         {item.title}
       </motion.span>

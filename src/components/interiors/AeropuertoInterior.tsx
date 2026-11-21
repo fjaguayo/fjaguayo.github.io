@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { VISITED } from '../../data/viajes'
 import type { Globe } from '../../lib/globe'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import ExitButton from './ExitButton'
 
 interface Props {
@@ -20,6 +21,7 @@ export default function AeropuertoInterior({ onExit }: Props) {
   const [selected, setSelected] = useState<number | null>(null)
   const [takeoff, setTakeoff] = useState(!reduce)
   const [failed, setFailed] = useState(false)
+  const touch = useMediaQuery('(pointer: coarse)')
 
   useEffect(() => {
     let globe: Globe | null = null
@@ -71,20 +73,21 @@ export default function AeropuertoInterior({ onExit }: Props) {
         initial={{ x: 40, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: reduce ? 0 : TAKEOFF_MS / 1000 + 1.2, type: 'spring', stiffness: 260, damping: 26 }}
-        className="absolute top-1/2 right-6 z-20 w-64 -translate-y-1/2 overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[6px_6px_0_var(--color-ink)]"
+        // en el móvil en vertical, el pasaporte baja al pie de la pantalla como una tira de países
+        className="absolute top-1/2 right-6 z-20 w-64 -translate-y-1/2 overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[6px_6px_0_var(--color-ink)] max-sm:top-auto max-sm:right-[calc(var(--safe-right)+8px)] max-sm:bottom-[calc(var(--safe-bottom)+8px)] max-sm:left-[calc(var(--safe-left)+8px)] max-sm:w-auto max-sm:translate-y-0 max-sm:shadow-[4px_4px_0_var(--color-ink)] short:right-[calc(var(--safe-right)+12px)] short:w-56"
       >
-        <header className="border-b-4 border-ink bg-sky px-4 py-3 text-cream">
-          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide">Pasaporte</h2>
-          <p className="m-0 mt-1 text-sm font-semibold">{VISITED.length} países visitados</p>
+        <header className="border-b-4 border-ink bg-sky px-4 py-3 text-cream compact:py-2 max-sm:flex max-sm:items-baseline max-sm:justify-between max-sm:gap-3">
+          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide compact:text-xl">Pasaporte</h2>
+          <p className="m-0 mt-1 text-sm font-semibold max-sm:mt-0 max-sm:text-xs">{VISITED.length} países visitados</p>
         </header>
-        <ul className="m-0 max-h-[68dvh] list-none overflow-y-auto p-2">
+        <ul className="m-0 max-h-[68dvh] list-none overflow-y-auto overscroll-contain p-2 max-sm:no-scrollbar max-sm:flex max-sm:max-h-none max-sm:gap-1.5 max-sm:overflow-x-auto max-sm:overflow-y-hidden short:max-h-[calc(100dvh-150px)]">
           {VISITED.map((c, i) => (
-            <li key={c.id}>
+            <li key={c.id} className="max-sm:shrink-0">
               <button
                 type="button"
                 onClick={() => globeRef.current?.flyTo(i)}
                 aria-pressed={selected === i}
-                className={`flex w-full cursor-pointer items-center gap-2 rounded-lg border-0 px-3 py-1 text-left text-[15px] font-semibold text-ink outline-none transition-colors focus-visible:outline-3 focus-visible:outline-sky ${
+                className={`flex w-full cursor-pointer items-center gap-2 rounded-lg border-0 px-3 py-1 text-left text-[15px] font-semibold text-ink outline-none transition-colors focus-visible:outline-3 focus-visible:outline-sky max-sm:rounded-full max-sm:border-2 max-sm:border-ink max-sm:py-1.5 max-sm:whitespace-nowrap short:py-0.5 ${
                   selected === i ? 'bg-sun' : 'bg-transparent hover:bg-sun/40'
                 }`}
               >
@@ -100,9 +103,11 @@ export default function AeropuertoInterior({ onExit }: Props) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: reduce ? 0 : TAKEOFF_MS / 1000 + 1.6 }}
-        className="pointer-events-none absolute bottom-6 left-1/2 z-20 m-0 -translate-x-1/2 rounded-full bg-black/40 px-4 py-1.5 text-sm font-semibold text-cream"
+        className="pointer-events-none absolute bottom-6 left-1/2 z-20 m-0 -translate-x-1/2 rounded-full bg-black/40 px-4 py-1.5 text-sm font-semibold whitespace-nowrap text-cream max-sm:top-[calc(var(--safe-top)+64px)] max-sm:bottom-auto max-sm:px-3 max-sm:text-xs short:bottom-3 short:text-xs"
       >
-        Arrastra para girar la Tierra · rueda para acercar · pulsa una chincheta
+        {touch
+          ? 'Arrastra para girar · pellizca para acercar'
+          : 'Arrastra para girar la Tierra · rueda para acercar · pulsa una chincheta'}
       </motion.p>
 
       <AnimatePresence>{takeoff && <Takeoff key="takeoff" />}</AnimatePresence>

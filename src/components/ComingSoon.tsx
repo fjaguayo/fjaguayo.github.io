@@ -30,7 +30,7 @@ export default function ComingSoon() {
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed bottom-6 left-1/2 z-[20000] -translate-x-1/2"
+      className="pointer-events-none fixed bottom-[calc(var(--safe-bottom)+24px)] left-1/2 z-[20000] -translate-x-1/2"
     >
       <AnimatePresence mode="wait">
         {current && (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MAP, PETS, PET_HIT, PLACEMENTS, parqueUrl, type Placement, type PetKind } from '../../data/mascotas'
 import ExitButton from './ExitButton'
@@ -12,6 +12,15 @@ const ratio = MAP.width / MAP.height
 /** El Parque: los terrarios de Javier con sus mascotas. Al pulsar una, sale su ficha. */
 export default function ParqueInterior({ onExit }: Props) {
   const [open, setOpen] = useState<PetKind | null>(null)
+  const scroller = useRef<HTMLDivElement>(null)
+
+  // en el móvil en vertical los terrarios se ven más grandes y se recorren deslizando: se empieza por el centro
+  useLayoutEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
+    el.scrollTop = (el.scrollHeight - el.clientHeight) / 2
+  }, [])
 
   // Escape cierra primero la ficha (ExitButton escucha en window; aquí paramos antes en captura)
   useEffect(() => {
@@ -27,7 +36,7 @@ export default function ParqueInterior({ onExit }: Props) {
   }, [open])
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4">
+    <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4 compact:px-2 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+8px)]">
       <button
         type="button"
         aria-label="Cerrar el parque"
@@ -41,20 +50,38 @@ export default function ParqueInterior({ onExit }: Props) {
         initial={{ y: 40, scale: 0.94, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-        className="relative overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)]"
+        className="relative overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)] compact:w-full! compact:shadow-[5px_5px_0_var(--color-ink)]"
         style={{ width: `min(1500px, 96vw, calc((100dvh - 96px - 62px) * ${ratio}))` }}
       >
-        <header className="flex items-center justify-between border-b-4 border-ink bg-mint px-5 py-3">
-          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-ink">Mis mascotas</h2>
-          <span className="text-sm font-bold text-ink/80">Pulsa en una para conocerla</span>
+        <header className="flex items-center justify-between gap-3 border-b-4 border-ink bg-mint px-5 py-3 compact:px-4 compact:py-2.5">
+          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-ink compact:text-xl">Mis mascotas</h2>
+          <span className="text-right text-sm font-bold text-ink/80 compact:text-xs">
+            <span className="compact:hidden">Pulsa en una para conocerla</span>
+            <span className="hidden compact:inline">Toca una para conocerla</span>
+          </span>
         </header>
 
-        <div className="relative [container-type:inline-size]" style={{ aspectRatio: `${MAP.width} / ${MAP.height}` }}>
-          <img src={parqueUrl('terrarios')} alt="" draggable={false} className="absolute inset-0 h-full w-full" />
-          {PLACEMENTS.map((p, i) => (
-            <PetSprite key={i} p={p} onOpen={() => setOpen(p.id)} />
-          ))}
+        <div className="relative">
+          {/*
+            En el móvil los terrarios se agrandan para que las mascotas se puedan tocar con el dedo:
+            en vertical ocupan el alto y se deslizan de lado; en horizontal, el ancho y se deslizan hacia abajo.
+          */}
+          <div
+            ref={scroller}
+            className="no-scrollbar compact:overflow-auto compact:overscroll-contain short:max-h-[calc(100dvh-122px)]"
+          >
+            <div
+              className="relative [container-type:inline-size] [--ph:min(calc(100dvh-140px),620px)] max-sm:h-[var(--ph)] max-sm:w-[calc(var(--ph)*var(--ratio))]"
+              style={{ aspectRatio: `${MAP.width} / ${MAP.height}`, ['--ratio' as string]: ratio }}
+            >
+              <img src={parqueUrl('terrarios')} alt="" draggable={false} className="absolute inset-0 h-full w-full" />
+              {PLACEMENTS.map((p, i) => (
+                <PetSprite key={i} p={p} onOpen={() => setOpen(p.id)} />
+              ))}
+            </div>
+          </div>
 
+          {/* la ficha va fuera de la zona que se desliza, para que siempre quede a la vista */}
           <AnimatePresence>{open && <PetCard key={open} kind={open} onClose={() => setOpen(null)} />}</AnimatePresence>
         </div>
       </motion.section>
@@ -157,16 +184,16 @@ function PetCard({ kind, onClose }: { kind: PetKind; onClose: () => void }) {
         animate={{ y: 0, scale: 1, rotate: 0 }}
         exit={{ y: 20, scale: 0.95, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 380, damping: 26 }}
-        className="relative flex w-[min(560px,80%)] items-center gap-5 rounded-2xl border-4 border-ink bg-cream p-5 shadow-[6px_6px_0_var(--color-ink)]"
+        className="relative flex w-[min(560px,80%)] items-center gap-5 rounded-2xl border-4 border-ink bg-cream p-5 shadow-[6px_6px_0_var(--color-ink)] max-sm:w-[88%] max-sm:flex-col max-sm:gap-3 max-sm:p-4 max-sm:text-center short:w-[min(560px,90%)] short:gap-4 short:p-4"
       >
-        <div className="flex h-36 w-44 shrink-0 items-center justify-center rounded-xl border-[3px] border-ink bg-[#cfe9f2]">
+        <div className="flex h-36 w-44 shrink-0 items-center justify-center rounded-xl border-[3px] border-ink bg-[#cfe9f2] max-sm:h-28 max-sm:w-full short:h-28 short:w-32">
           <img src={parqueUrl(kind)} alt="" className="max-h-[85%] max-w-[85%]" />
         </div>
         <div className="min-w-0">
           <span className="inline-block rounded-full border-[3px] border-ink bg-sun px-3 py-0.5 text-xs font-extrabold uppercase tracking-wide text-ink">
             {pet.species}
           </span>
-          <h3 className="m-0 mt-2 font-display text-3xl uppercase leading-none tracking-wide text-ink">{pet.name}</h3>
+          <h3 className="m-0 mt-2 font-display text-3xl uppercase leading-none tracking-wide text-ink compact:text-2xl">{pet.name}</h3>
           <p className="m-0 mt-2 text-[15px] leading-snug font-medium text-ink/85">{pet.info}</p>
         </div>
         <button

@@ -12,7 +12,7 @@ export default function GimnasioInterior({ onExit }: Props) {
   const right = ROUTINES.slice(2)
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4">
+    <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4 compact:px-2 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+8px)]">
       <button
         type="button"
         aria-label="Cerrar el gimnasio"
@@ -26,15 +26,16 @@ export default function GimnasioInterior({ onExit }: Props) {
         initial={{ y: 40, scale: 0.94, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-        className="relative flex max-h-full w-[min(1400px,96vw)] flex-col overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)]"
+        className="relative flex max-h-full w-[min(1400px,96vw)] flex-col overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)] compact:w-full compact:max-w-[1400px] compact:shadow-[5px_5px_0_var(--color-ink)]"
       >
-        <header className="flex items-center justify-between border-b-4 border-ink bg-berry px-5 py-3">
-          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-white">Gimnasio</h2>
+        <header className="flex items-center justify-between border-b-4 border-ink bg-berry px-5 py-3 compact:px-4 compact:py-2.5">
+          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-white compact:text-xl">Gimnasio</h2>
           <span className="text-sm font-bold text-white/90">Mi rutina semanal</span>
         </header>
 
-        <div className="grid min-h-0 flex-1 grid-cols-[1fr_minmax(260px,320px)_1fr] gap-5 overflow-y-auto p-5">
-          <div className="flex flex-col gap-5">
+        {/* en el ordenador, rango en el centro y rutinas a los lados; en el móvil, todo en una columna con el rango arriba */}
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-5 max-lg:auto-rows-max overflow-y-auto overscroll-contain p-5 md:grid-cols-2 lg:grid-cols-[1fr_minmax(260px,320px)_1fr] compact:gap-4 compact:p-3 short:grid-cols-2">
+          <div className="flex flex-col gap-5 compact:gap-4">
             {left.map((r, i) => (
               <RoutineCard key={r.id} routine={r} delay={0.1 + i * 0.08} from={-24} />
             ))}
@@ -42,7 +43,7 @@ export default function GimnasioInterior({ onExit }: Props) {
 
           <RankPanel />
 
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5 compact:gap-4">
             {right.map((r, i) => (
               <RoutineCard key={r.id} routine={r} delay={0.1 + i * 0.08} from={24} />
             ))}
@@ -61,7 +62,7 @@ function RankPanel() {
       initial={{ y: 24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.05 }}
-      className="flex min-h-0 flex-col items-center gap-4 rounded-2xl border-4 border-ink bg-[#121212] p-4 shadow-[4px_4px_0_var(--color-ink)]"
+      className="flex min-h-0 flex-col items-center gap-4 rounded-2xl border-4 border-ink bg-[#121212] p-4 shadow-[4px_4px_0_var(--color-ink)] max-lg:order-first md:max-lg:col-span-2 short:col-span-2"
     >
       <div className="flex w-full items-center gap-3 rounded-xl border-[3px] border-white/25 bg-white/5 px-4 py-3">
         <SilverBadge />
@@ -79,7 +80,8 @@ function RankPanel() {
         alt="Mapa muscular de Symmetry: core y aductores en oro, el resto del cuerpo en plata"
         draggable={false}
         className="min-h-0 w-auto flex-1 object-contain"
-        style={{ maxHeight: 'calc(100dvh - 400px)' }}
+        // en pantallas bajas no se encoge por debajo de 240 px: el panel ya se desplaza
+        style={{ maxHeight: 'max(240px, calc(100dvh - 400px))' }}
       />
 
       <motion.a

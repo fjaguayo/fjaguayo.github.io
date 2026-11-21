@@ -73,13 +73,13 @@ export default function MetroInterior({ onExit }: Props) {
   const [hover, setHover] = useState<BuildingId | null>(null)
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-6">
+    <div className="fixed inset-0 flex overflow-y-auto overscroll-contain px-6 pt-20 pb-6 compact:px-3 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+12px)]">
       <button
         type="button"
         aria-label="Cerrar el plano del metro"
         tabIndex={-1}
         onClick={onExit}
-        className="absolute inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
+        className="fixed inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
       />
 
       <motion.section
@@ -87,19 +87,22 @@ export default function MetroInterior({ onExit }: Props) {
         initial={{ y: 40, scale: 0.94, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-        className="relative w-[min(1120px,94vw)] overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)]"
+        className="relative m-auto w-[min(1120px,94vw)] overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)] compact:w-full compact:max-w-[1120px] compact:shadow-[5px_5px_0_var(--color-ink)]"
       >
-        <header className="flex items-center gap-3 border-b-4 border-ink bg-ink px-5 py-3 text-cream">
+        <header className="flex items-center gap-3 border-b-4 border-ink bg-ink px-5 py-3 text-cream compact:px-4 compact:py-2.5">
           <span className="flex h-9 w-9 items-center justify-center rounded-full border-[3px] border-cream bg-berry font-display text-xl leading-none">
             M
           </span>
           <div>
-            <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide">Metro de FJAH City</h2>
+            <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide compact:text-xl">Metro de FJAH City</h2>
             <p className="m-0 mt-1 text-sm font-semibold text-cream/75">Pulsa una parada para ir directo</p>
           </div>
         </header>
 
-        <div className="p-4">
+        {/* en el móvil el plano quedaría diminuto: se enseñan las líneas como listas de paradas */}
+        <MetroList />
+
+        <div className="p-4 compact:hidden">
           <svg viewBox="0 0 1000 600" className="block h-auto w-full" role="group" aria-label="Paradas">
             {/* fondo de plano: cuadrícula suave */}
             <defs>
@@ -225,6 +228,56 @@ export default function MetroInterior({ onExit }: Props) {
       </motion.section>
 
       <ExitButton onExit={onExit} />
+    </div>
+  )
+}
+
+/** Versión para el móvil: cada línea es una lista vertical de paradas, como el cartel de un andén. */
+function MetroList() {
+  return (
+    <div className="hidden grid-cols-2 gap-3 p-3 compact:grid short:grid-cols-4">
+      {LINES.map((l) => (
+        <section key={l.name} aria-label={l.name} className="min-w-0 rounded-xl border-[3px] border-ink bg-white p-3 shadow-[3px_3px_0_var(--color-ink)]">
+          <h3 className="m-0 flex items-center gap-2 text-[13px] font-extrabold leading-tight text-ink">
+            <span className="h-3 w-6 shrink-0 rounded-full border-2 border-ink" style={{ background: l.color }} />
+            {l.name}
+          </h3>
+          <ol className="relative m-0 mt-2 list-none p-0">
+            {/* el trazado de la línea, detrás de los puntos */}
+            <span
+              aria-hidden="true"
+              className="absolute top-3 bottom-3 left-[9px] w-[6px] rounded-full border-2 border-ink"
+              style={{ background: l.color }}
+            />
+            {l.stations.map((st) => {
+              const open = hasInterior(st.id)
+              const name = nameOf(st.id)
+              return (
+                <li key={st.id}>
+                  <button
+                    type="button"
+                    disabled={!open}
+                    onClick={() => enterBuilding(st.id)}
+                    aria-label={open ? `Ir a ${name}` : `${name}, próximamente`}
+                    className="relative flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-0 bg-transparent py-1.5 pr-1 text-left outline-none active:bg-sun/40 focus-visible:outline-3 focus-visible:outline-sky disabled:cursor-not-allowed"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`relative z-10 h-6 w-6 shrink-0 rounded-full border-4 border-ink ${open ? 'bg-white' : 'bg-[#d6d1c4]'}`}
+                    />
+                    <span className="min-w-0">
+                      <span className={`block font-display text-[15px] uppercase leading-none tracking-wide ${open ? 'text-ink' : 'text-ink/45'}`}>
+                        {name}
+                      </span>
+                      {!open && <span className="mt-0.5 block text-[11px] font-bold text-ink/45">Próximamente</span>}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ol>
+        </section>
+      ))}
     </div>
   )
 }
