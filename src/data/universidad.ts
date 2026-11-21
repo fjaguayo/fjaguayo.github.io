@@ -6,13 +6,16 @@
 export interface Slide {
   src: string
   caption: string
+  /** Texto pequeño bajo el subtítulo. Opcional. */
+  note?: string
 }
 
 export const SLIDES: Slide[] = [
   { src: '01_divina_pastora.webp', caption: 'Colegio Divina Pastora - Córdoba' },
   { src: '02_la_salle.webp', caption: 'Bachillerato tecnológico' },
   { src: '03_san_jose.webp', caption: 'FP Automatización y Robótica Industrial' },
-  { src: '04_uma.webp', caption: 'Ingeniería Electrónica Industrial - UMA' },
+  { src: '04_uma.webp', caption: 'Ingeniería Electrónica Industrial - UMA', note: '(3 años, sin finalizar)' },
+  { src: '05_python.webp', caption: 'Programación con Python' },
 ]
 
 export const slideUrl = (src: string) => `${import.meta.env.BASE_URL}universidad/${src}`

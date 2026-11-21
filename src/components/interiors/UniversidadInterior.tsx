@@ -102,6 +102,11 @@ export default function UniversidadInterior({ onExit }: Props) {
                   className="m-0 text-center font-display text-3xl uppercase leading-tight tracking-wide text-cream [text-shadow:0_3px_0_#1b1b2f]"
                 >
                   {slide.caption}
+                  {slide.note && (
+                    <span className="mt-1 block font-sans text-base font-semibold normal-case tracking-normal text-cream/85 [text-shadow:0_1px_2px_#000]">
+                      {slide.note}
+                    </span>
+                  )}
                 </motion.p>
               </AnimatePresence>
 
