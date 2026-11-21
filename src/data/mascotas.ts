@@ -16,12 +16,12 @@ export interface Pet {
 export const PETS: Record<PetKind, Pet> = {
   lola: {
     name: 'Lola',
-    species: 'Rata blanca',
+    species: 'Jerbo blanco',
     info: 'Vive en el terrario del arbusto, con su comedero y una rueda para correr.',
   },
   an: {
     name: 'Gustavo',
-    species: 'Rata negra',
+    species: 'Jerbo negro',
     info: 'Su terrario tiene una casita de madera, una rampa hasta la plataforma de arriba y su bebedero.',
   },
   palo: {
