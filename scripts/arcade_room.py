@@ -30,8 +30,10 @@ SRC = ROOT / "Imagenes" / "Arcade_sala.png"
 OUT = ROOT / "public" / "arcade"
 DATA = ROOT / "src" / "data" / "arcadeHit.json"
 
-# Todo se exporta al doble del original (la imagen es de 1024 px y la sala se ve grande).
-SCALE = 2
+# Todo se exporta al triple del original (la imagen es de 1024 px y la sala se ve grande).
+# Los colores salen de la versión nítida (scripts/upscale_arcade.py) si existe; si no, de un reescalado normal.
+SCALE = 3
+HD = ROOT / "Imagenes" / "procesadas" / "Arcade_sala_x3.webp"
 
 # Polígonos en píxeles del original. Lo que tapa el suelo de la sala.
 HOLO = [(69, 366), (192, 307), (195, 308), (196, 372), (208, 380), (208, 400), (69, 460)]  # pantalla holográfica
@@ -128,13 +130,30 @@ def to_rgba(rgb, alpha):
     return np.dstack([rgb, alpha * 255])
 
 
-def upscale(rgb, alpha):
+def upscale(rgb, alpha, origin=None, hd=None):
+    """Amplía a SCALE. El contorno (alpha) se amplía con suavidad; el color sale de `hd` si se da."""
     h, w = alpha.shape
     size = (w * SCALE, h * SCALE)
+    a = np.clip(cv2.resize(alpha.astype(np.float32), size, interpolation=cv2.INTER_CUBIC), 0, 1)
+    if hd is not None and origin is not None:
+        x0, y0 = origin[0] * SCALE, origin[1] * SCALE
+        col = np.zeros((size[1], size[0], 3), np.float32)
+        sy1, sx1 = min(y0 + size[1], hd.shape[0]), min(x0 + size[0], hd.shape[1])
+        col[: sy1 - y0, : sx1 - x0] = hd[y0:sy1, x0:sx1]
+        # en el borde, el color de la versión nítida aún lleva el blanco del fondo: se rellena
+        # con el color del interior más cercano (convolución normalizada) para que no quede halo
+        inner = (a > 0.97).astype(np.float32)
+        k = (0, 0)
+        num = cv2.GaussianBlur(col * inner[..., None], k, 3)
+        den = cv2.GaussianBlur(inner, k, 3)[..., None]
+        # solo el contorno (unos píxeles junto a lo transparente), no el fundido largo del suelo
+        near = cv2.distanceTransform((a > 0.02).astype(np.uint8), cv2.DIST_L2, 3) < 2.5 * SCALE
+        edge = ((a <= 0.97) & near)[..., None] & (den > 1e-3)
+        col = np.where(edge, num / np.maximum(den, 1e-3), col)
+        return col, a
     pre = np.dstack([rgb * alpha[..., None], alpha]).astype(np.float32)
     pre = cv2.resize(pre, size, interpolation=cv2.INTER_CUBIC)
-    a = np.clip(pre[..., 3], 0, 1)
-    col = np.where(a[..., None] > 1e-4, pre[..., :3] / np.maximum(a[..., None], 1e-4), 0)
+    col = np.where(a[..., None] > 1e-4, pre[..., :3] / np.maximum(pre[..., 3:4], 1e-4), 0)
     return np.clip(col, 0, 255), a
 
 
@@ -155,13 +174,13 @@ def crop(rgb, alpha, pad=14):
     sy1, sx1 = min(y1, h), min(x1, w)
     R[: sy1 - y0, : sx1 - x0] = rgb[y0:sy1, x0:sx1]
     A[: sy1 - y0, : sx1 - x0] = alpha[y0:sy1, x0:sx1]
-    return R, A
+    return R, A, (int(x0), int(y0))
 
 
-def sprite(rgb, mask, name):
+def sprite(rgb, mask, name, hd=None):
     alpha = soft_alpha(mask)
-    rgb, alpha = crop(rgb.astype(np.float32), alpha)
-    rgb, alpha = upscale(rgb, alpha)
+    rgb, alpha, origin = crop(rgb.astype(np.float32), alpha)
+    rgb, alpha = upscale(rgb, alpha, origin, hd)
     size = (alpha.shape[1], alpha.shape[0])
     save_rgba(to_rgba(rgb, alpha), str(OUT), name, None)
 
@@ -234,16 +253,27 @@ def main():
     dist = np.interp(np.arange(shape[1]), ex, ey)[None, :] - np.arange(shape[0])[:, None]
     t = np.clip(dist / FADE, 0, 1)
     a = a * (t * t * (3 - 2 * t))  # smoothstep
-    r, a = crop(filled, a, pad=4)
-    r, a = upscale(r, a)
+    hd = None
+    if HD.exists():
+        hd = np.array(Image.open(HD).convert("RGB")).astype(np.float32)
+        # en la sala, el suelo que tapaban los objetos sale del relleno, ampliado
+        filled_up = cv2.resize(filled, (hd.shape[1], hd.shape[0]), interpolation=cv2.INTER_CUBIC)
+        hole_up = cv2.resize(cv2.dilate(hole.astype(np.uint8), disk(2)), (hd.shape[1], hd.shape[0]), interpolation=cv2.INTER_NEAREST).astype(bool)
+        hd_room = np.where(hole_up[..., None], filled_up, hd)
+        print(f"Usando la versión nítida {HD.name}")
+    else:
+        hd_room = None
+        print("Sin versión nítida: reescalado normal (ver scripts/upscale_arcade.py)")
+    r, a, origin = crop(filled, a, pad=4)
+    r, a = upscale(r, a, origin, hd_room)
     save_rgba(to_rgba(r, a), str(OUT), "sala", None)
     print(f"sala: {a.shape[1]}x{a.shape[0]}")
 
     hit = {"sala": {"width": int(a.shape[1]), "height": int(a.shape[0])}}
-    hit["vinilo"] = sprite(rgb, vinyl, "vinilo")
-    hit["recreativa"] = sprite(rgb, arcade, "recreativa")
-    hit["mesa"] = sprite(rgb, table, "mesa")
-    hit["corcho"] = sprite(rgb, cork, "corcho")
+    hit["vinilo"] = sprite(rgb, vinyl, "vinilo", hd)
+    hit["recreativa"] = sprite(rgb, arcade, "recreativa", hd)
+    hit["mesa"] = sprite(rgb, table, "mesa", hd)
+    hit["corcho"] = sprite(rgb, cork, "corcho", hd)
 
     DATA.write_text(json.dumps(hit, separators=(",", ":")) + "\n", encoding="utf-8")
     print(f"Escrito {DATA.relative_to(ROOT)}")
