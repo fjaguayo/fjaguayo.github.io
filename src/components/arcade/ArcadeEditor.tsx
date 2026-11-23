@@ -27,7 +27,9 @@ function toSource(list: ArcadePlacement[]) {
 export default function ArcadeEditor({ placements, onChange }: Props) {
   const [selected, setSelected] = useState<ArcadePieceId | null>(null)
   const [copied, setCopied] = useState(false)
+  const [side, setSide] = useState<'left' | 'right'>('right')
   const layer = useRef<HTMLDivElement>(null)
+  const outRef = useRef<HTMLTextAreaElement>(null)
   const drag = useRef<{ id: ArcadePieceId; sx: number; sy: number; x: number; y: number } | null>(null)
 
   const update = (id: ArcadePieceId, patch: Partial<ArcadePlacement>) =>
@@ -70,9 +72,10 @@ export default function ArcadeEditor({ placements, onChange }: Props) {
     try {
       await navigator.clipboard.writeText(src)
     } catch {
-      window.prompt('Copia esto en src/data/arcade.ts', src)
+      // sin portapapeles: el código queda en el cuadro de texto, seleccionado para copiarlo a mano
+      outRef.current?.select()
+      return
     }
-    console.log(src)
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1500)
   }
@@ -117,8 +120,19 @@ export default function ArcadeEditor({ placements, onChange }: Props) {
       </div>
 
       {createPortal(
-        <div className="fixed right-3 bottom-3 z-[40000] w-72 rounded-xl border-4 border-ink bg-cream p-3 text-sm text-ink shadow-[4px_4px_0_var(--color-ink)]">
-          <p className="m-0 font-display text-lg uppercase leading-none">Colocar el Arcade</p>
+        <div
+          className={`fixed bottom-3 z-[40000] w-72 rounded-xl border-4 border-ink bg-cream p-3 text-sm text-ink shadow-[4px_4px_0_var(--color-ink)] ${side === 'right' ? 'right-3' : 'left-3'}`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <p className="m-0 font-display text-lg uppercase leading-none">Colocar el Arcade</p>
+            <button
+              type="button"
+              onClick={() => setSide((v) => (v === 'right' ? 'left' : 'right'))}
+              className="cursor-pointer rounded-md border-2 border-ink bg-white px-2 py-0.5 text-xs font-bold"
+            >
+              {side === 'right' ? '← Mover panel' : 'Mover panel →'}
+            </button>
+          </div>
           <p className="m-0 mt-1 text-xs leading-snug text-ink/75">
             Arrastra para mover. Rueda o +/− para el tamaño. Flechas para afinar (Mayús = ×10). F espeja.
           </p>
@@ -153,6 +167,14 @@ export default function ArcadeEditor({ placements, onChange }: Props) {
           >
             {copied ? 'Copiado' : 'Copiar coordenadas'}
           </button>
+          <textarea
+            ref={outRef}
+            readOnly
+            value={toSource(placements)}
+            onFocus={(e) => e.currentTarget.select()}
+            aria-label="Coordenadas para src/data/arcade.ts"
+            className="mt-2 h-24 w-full resize-none rounded border-2 border-ink bg-white p-1.5 font-mono text-[10px] leading-tight"
+          />
         </div>,
         document.body,
       )}

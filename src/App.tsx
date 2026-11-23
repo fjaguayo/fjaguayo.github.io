@@ -57,9 +57,10 @@ export default function App() {
     return () => window.removeEventListener(ENTER_EVENT, onEnter)
   }, [])
 
-  // desarrollo: /?arcade-edit entra directamente en el Arcade para colocar sus objetos
+  // colocar el Arcade: /?arcade-edit en desarrollo, o el build de vista previa con VITE_ARCADE_EDITOR=1, entran directos en la sala
   useEffect(() => {
-    if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('arcade-edit')) setInside('arcade')
+    const preview = import.meta.env.VITE_ARCADE_EDITOR === '1'
+    if (preview || (import.meta.env.DEV && new URLSearchParams(window.location.search).has('arcade-edit'))) setInside('arcade')
   }, [])
 
   const exit = useCallback(() => setInside(null), [])

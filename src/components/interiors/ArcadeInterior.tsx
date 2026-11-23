@@ -6,9 +6,11 @@ import ExitButton from './ExitButton'
 const MusicMenu = lazy(() => import('../arcade/MusicMenu'))
 const GamesMenu = lazy(() => import('../arcade/GamesMenu'))
 
-// Editor de colocación: solo en desarrollo y con ?arcade-edit en la URL.
-const ArcadeEditor = import.meta.env.DEV ? lazy(() => import('../arcade/ArcadeEditor')) : null
-const editing = !!ArcadeEditor && new URLSearchParams(window.location.search).has('arcade-edit')
+// Editor de colocación: en desarrollo con ?arcade-edit, o en un build de vista previa
+// hecho con VITE_ARCADE_EDITOR=1 (ahí está siempre activo). En la web publicada no existe.
+const PREVIEW_EDITOR = import.meta.env.VITE_ARCADE_EDITOR === '1'
+const ArcadeEditor = import.meta.env.DEV || PREVIEW_EDITOR ? lazy(() => import('../arcade/ArcadeEditor')) : null
+const editing = !!ArcadeEditor && (PREVIEW_EDITOR || new URLSearchParams(window.location.search).has('arcade-edit'))
 
 interface Props {
   onExit: () => void
@@ -24,9 +26,31 @@ export const heightPct = (p: ArcadePlacement) => {
   return p.width * (size.height / size.width) * ratio
 }
 
+// en el editor, lo colocado se guarda en este navegador para no perderlo al recargar
+const DRAFT_KEY = 'fjah-arcade-colocacion'
+function loadDraft(): ArcadePlacement[] | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY)
+    const list = raw ? (JSON.parse(raw) as ArcadePlacement[]) : null
+    return list && list.length === PLACEMENTS.length ? list : null
+  } catch {
+    return null
+  }
+}
+function saveDraft(list: ArcadePlacement[]) {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(list))
+  } catch {
+    /* sin almacenamiento: no pasa nada */
+  }
+}
+
 /** El Salón Recreativo: una sala con neones y tres objetos que se pueden tocar. */
 export default function ArcadeInterior({ onExit }: Props) {
-  const [placements, setPlacements] = useState(PLACEMENTS)
+  const [placements, setPlacements] = useState(() => (editing ? loadDraft() : null) ?? PLACEMENTS)
+  useEffect(() => {
+    if (editing) saveDraft(placements)
+  }, [placements])
   const [menu, setMenu] = useState<Menu | null>(null)
   const [toast, setToast] = useState(false)
   const scroller = useRef<HTMLDivElement>(null)
