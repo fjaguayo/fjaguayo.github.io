@@ -112,7 +112,8 @@ export default function Ps2Carousel({ path, items, onBack, backLabel, enterLabel
           const depth = Math.cos(angle) // 1 al frente, -1 detrás
           const front = (depth + 1) / 2
           const isActive = d === 0
-          const x = Math.sin(angle) * 34 // en vw
+          // radio del círculo: el primer vecino queda siempre a ~30vw del centro, haya los que haya
+          const x = Math.sin(angle) * (30 / Math.sin(angleStep)) // en vw
           const scale = isActive ? 1 : 0.42 + 0.4 * front ** 1.6
           const opacity = depth < -0.55 ? 0 : 0.25 + 0.75 * front ** 1.3
           const common = {

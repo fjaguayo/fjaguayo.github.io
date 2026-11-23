@@ -2,10 +2,10 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { GAMES, gameUrl } from '../../data/arcade'
 import { playOpen } from '../../lib/ps2Sound'
-import Ps2Menu from './Ps2Menu'
+import Ps2Carousel from './Ps2Carousel'
 import { GameCover } from './visuals'
 
-/** Máquina recreativa: las cajas de mis juegos favoritos. Cada una abre su página de Steam. */
+/** Máquina recreativa: mis juegos favoritos en un círculo. El del centro abre su página (Steam o la oficial). */
 export default function GamesMenu({ onClose }: { onClose: () => void }) {
   useEffect(() => playOpen(), [])
 
@@ -27,19 +27,17 @@ export default function GamesMenu({ onClose }: { onClose: () => void }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.35 }}
     >
-      <Ps2Menu
-        viewKey="games"
+      <Ps2Carousel
         path={['Mis juegos']}
-        shape="tall"
         enterLabel="Ver el juego"
         backLabel="Salir"
         onBack={onClose}
         items={GAMES.map((g) => ({
           key: g.title,
           title: g.title,
-          subtitle: g.note ?? 'Steam',
+          subtitle: g.note ?? (g.steamId ? 'Steam' : undefined),
           href: gameUrl(g),
-          visual: <GameCover game={g} />,
+          render: () => <GameCover game={g} />,
         }))}
       />
     </motion.div>

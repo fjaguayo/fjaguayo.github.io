@@ -150,7 +150,6 @@ export const ALBUMS: Album[] = [
       { title: 'Wrecked', spotify: tr('2d1MywHy6FwKdzxFuSJnwl') },
     ],
   },
-
 ]
 
 export const trackUrl = (album: Album, track: Track) =>
@@ -172,24 +171,18 @@ export interface Game {
   note?: string
 }
 
-// En el mismo orden que mi lista de "Juegos que me gustan".
+// En el mismo orden que mi lista de "Juegos que me gustan". Las carátulas son cuadradas, en public/arcade/juegos/.
 export const GAMES: Game[] = [
-  { title: 'Ghost of Tsushima', steamId: 2215430 },
-  { title: 'ARK: Survival Evolved', steamId: 346110 },
-  {
-    title: 'inFAMOUS Second Son',
-    url: 'https://www.playstation.com/es-es/games/infamous-second-son/',
-    cover: 'arcade/juegos/infamous-second-son.webp',
-    note: 'PlayStation',
-  },
-  { title: 'Slime Rancher', steamId: 433340 },
-  { title: 'No Rest for the Wicked', steamId: 1371980 },
-  { title: 'For Honor', steamId: 304390 },
-  { title: 'Marvel Rivals', steamId: 2767030 },
-  { title: 'Barony', steamId: 371970 },
-  { title: "Baldur's Gate 3", steamId: 1086940 },
-  { title: 'Grounded 2', steamId: 2661300 },
-  { title: 'Subnautica', steamId: 264710 },
+  { title: 'Ghost of Tsushima', steamId: 2215430, cover: 'arcade/juegos/ghost-of-tsushima.webp' },
+  { title: 'ARK: Survival Evolved', steamId: 346110, cover: 'arcade/juegos/ark.webp' },
+  { title: 'Slime Rancher', steamId: 433340, cover: 'arcade/juegos/slime-rancher.webp' },
+  { title: 'Poppy Playtime: Chapter 3', steamId: 2555190, cover: 'arcade/juegos/poppy-playtime-3.webp' },
+  { title: 'For Honor', steamId: 304390, cover: 'arcade/juegos/for-honor.webp' },
+  { title: 'Marvel Rivals', steamId: 2767030, cover: 'arcade/juegos/marvel-rivals.webp' },
+  { title: 'Barony', steamId: 371970, cover: 'arcade/juegos/barony.webp' },
+  { title: "Baldur's Gate 3", steamId: 1086940, cover: 'arcade/juegos/baldurs-gate-3.webp' },
+  { title: 'Grounded', steamId: 962130, cover: 'arcade/juegos/grounded.webp' },
+  { title: 'Subnautica', steamId: 264710, cover: 'arcade/juegos/subnautica.webp' },
   { title: 'Minecraft', url: 'https://www.minecraft.net/es-es', cover: 'arcade/juegos/minecraft.webp', note: 'Minecraft.net' },
 ]
 
