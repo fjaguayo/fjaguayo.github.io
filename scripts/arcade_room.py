@@ -40,12 +40,50 @@ HOLO = [(69, 366), (192, 307), (195, 308), (196, 372), (208, 380), (208, 400), (
 BADGE = [(199, 319), (228, 312), (232, 315), (232, 343), (201, 351), (198, 349)]  # icono de Spotify
 ARC_TOP = [(423, 400), (423, 365), (441, 358), (450, 353), (510, 326), (514, 325), (541, 331), (546, 336), (549, 400)]
 
+# Letrero de la recreativa: las letras del dibujo salían deformadas ("MIS JUEϬOS"), así que se borran
+# y el cartel queda liso, rellenado con los colores que lo rodean.
+MARQUEE = [(477, 369), (537, 341), (538, 361), (477, 388)]  # interior del cartel, entre sus marcos oscuros
+
 # Fundido del borde delantero del suelo, en píxeles del original: la parte de delante se pierde
 # en la oscuridad (y de paso disimula el trozo de suelo reconstruido bajo el holograma).
 FADE = 75
 
 # Borde inferior del suelo (x, y): lo que queda por debajo ya no es sala.
 FLOOR_EDGE = [(0, 318), (25, 330), (40, 333), (55, 340), (195, 387), (260, 393), (330, 402), (400, 382), (545, 328), (600, 309), (723, 262), (1024, 262)]
+
+
+def clear_marquee(hd: np.ndarray) -> np.ndarray:
+    """Borra las letras del cartel: cada columna se pinta con el color del propio cartel en esa columna
+    (la mediana de lo que no es letra), suavizado, con el borde fundido para que no se note el corte."""
+    mq = np.zeros(hd.shape[:2], np.uint8)
+    cv2.fillPoly(mq, [np.array(MARQUEE, np.int32) * SCALE], 1)
+    f = hd.astype(np.float32)
+    r, g, b = f[..., 0], f[..., 1], f[..., 2]
+    # el fondo del cartel es azul: todo lo cálido (letras doradas y su contorno marrón) o muy oscuro/claro no cuenta
+    letters = (r > b - 10) | (f.mean(axis=2) > 175) | (f.mean(axis=2) < 70)
+    ys, xs = np.where(mq > 0)
+    x0, x1 = xs.min(), xs.max()
+    cols = np.zeros((x1 - x0 + 1, 3), np.float32)
+    valid = np.zeros(x1 - x0 + 1, bool)
+    for x in range(x0, x1 + 1):
+        sel = (mq[:, x] > 0) & ~letters[:, x]
+        if sel.sum() >= 3:
+            cols[x - x0] = np.median(f[sel, x], axis=0)
+            valid[x - x0] = True
+    # degradado recto entre los colores de los dos extremos del cartel (el centro estaba lleno de letras)
+    n = len(cols)
+    ends = np.arange(n)
+    left = valid & (ends < n * 0.2)
+    right = valid & (ends > n * 0.8)
+    c0 = np.median(cols[left], axis=0)
+    c1 = np.median(cols[right], axis=0)
+    t = (ends / max(n - 1, 1))[:, None]
+    cols = c0 * (1 - t) + c1 * t
+    fill = f.copy()
+    fill[ys, xs] = cols[xs - x0]
+    w = cv2.GaussianBlur(mq.astype(np.float32), (0, 0), 0.8 * SCALE)[..., None]
+    w = np.clip(w * 1.6, 0, 1)
+    return (fill * w + f * (1 - w)).astype(np.uint8)
 
 
 def poly_mask(shape, pts, grow=2):
@@ -255,7 +293,9 @@ def main():
     a = a * (t * t * (3 - 2 * t))  # smoothstep
     hd = None
     if HD.exists():
-        hd = np.array(Image.open(HD).convert("RGB")).astype(np.float32)
+        hd = np.array(Image.open(HD).convert("RGB"))
+        hd = clear_marquee(hd)
+        hd = hd.astype(np.float32)
         # en la sala, el suelo que tapaban los objetos sale del relleno, ampliado
         filled_up = cv2.resize(filled, (hd.shape[1], hd.shape[0]), interpolation=cv2.INTER_CUBIC)
         hole_up = cv2.resize(cv2.dilate(hole.astype(np.uint8), disk(2)), (hd.shape[1], hd.shape[0]), interpolation=cv2.INTER_NEAREST).astype(bool)
