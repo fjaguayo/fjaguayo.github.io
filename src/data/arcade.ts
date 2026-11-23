@@ -23,10 +23,10 @@ export interface ArcadePlacement {
 }
 
 export const PLACEMENTS: ArcadePlacement[] = [
-  { id: 'sala', x: 50, y: 67.2, width: 70.5 },
-  { id: 'vinilo', x: 28.1, y: 94.4, width: 20.5 },
-  { id: 'recreativa', x: 61.8, y: 93.6, width: 17.3 },
-  { id: 'mesa', x: 82.6, y: 85.2, width: 31.2 },
+  { id: 'sala', x: 50.6, y: 93.2, width: 102.6 },
+  { id: 'vinilo', x: 22.1, y: 81.6, width: 29.5 },
+  { id: 'recreativa', x: 42.2, y: 63.6, width: 24.9 },
+  { id: 'mesa', x: 71.9, y: 85.8, width: 44.9 },
 ]
 
 /** Nombre que sale en la etiqueta al pasar el ratón. */

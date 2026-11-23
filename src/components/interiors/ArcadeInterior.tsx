@@ -27,7 +27,8 @@ export const heightPct = (p: ArcadePlacement) => {
 }
 
 // en el editor, lo colocado se guarda en este navegador para no perderlo al recargar
-const DRAFT_KEY = 'fjah-arcade-colocacion'
+// la clave cambia cuando cambian las posiciones de partida, para no recuperar un borrador viejo
+const DRAFT_KEY = `fjah-arcade-colocacion-${JSON.stringify(PLACEMENTS).length}-${PLACEMENTS.map((p) => p.x + p.y).join('-')}`
 function loadDraft(): ArcadePlacement[] | null {
   try {
     const raw = localStorage.getItem(DRAFT_KEY)
@@ -128,7 +129,7 @@ export default function ArcadeInterior({ onExit }: Props) {
                   src={arcadeUrl('sala')}
                   alt=""
                   draggable={false}
-                  className="pointer-events-none absolute"
+                  className="pointer-events-none absolute max-w-none"
                   style={{
                     left: `${room.x - room.width / 2}%`,
                     top: `${room.y - heightPct(room)}%`,
