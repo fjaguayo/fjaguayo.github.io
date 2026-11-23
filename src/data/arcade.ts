@@ -68,6 +68,8 @@ export interface Album {
   /** Artista, si la carpeta es un álbum y no un grupo. */
   artist?: string
   year?: number
+  /** Foto del grupo para el carrusel (p. ej. 'arcade/grupos/eminem.webp'). Si falta, se usa la carátula. */
+  photo?: string
   /** Carátula: ruta en public/ (p. ej. 'arcade/albumes/x.webp') o URL. Si falta, se dibuja una funda con el título. */
   cover?: string
   /** Enlace en Spotify (se usa si una canción no tiene el suyo). */

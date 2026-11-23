@@ -232,7 +232,7 @@ function Cover({
 }
 
 /** Niebla azulada que se desplaza despacio por el fondo. */
-function Fog() {
+export function Fog() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_120%,#0f2a6b_0%,#061133_38%,#02040c_75%)]" />
@@ -269,7 +269,7 @@ function Fog() {
 }
 
 /** Iconos de los botones del mando: cruz azul y círculo rojo. */
-function PadIcon({ kind }: { kind: 'cross' | 'circle' }) {
+export function PadIcon({ kind }: { kind: 'cross' | 'circle' }) {
   return (
     <svg viewBox="0 0 24 24" className="h-6 w-6 shrink-0" aria-hidden="true">
       <circle cx="12" cy="12" r="11" fill="#0b1430" stroke="#c9d6f5" strokeWidth="1.2" />

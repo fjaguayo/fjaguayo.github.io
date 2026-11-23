@@ -21,7 +21,7 @@ export function Sleeve({ title, subtitle, color, disc = true }: { title: string;
         />
       )}
       <span
-        className="relative font-display text-[13cqw] leading-[0.95] tracking-wide text-white uppercase"
+        className="relative font-display text-[10cqw] leading-[0.95] tracking-wide break-words text-white uppercase"
         style={{ textShadow: '0 2px 0 rgba(0,0,0,0.45)' }}
       >
         {title}
@@ -33,14 +33,17 @@ export function Sleeve({ title, subtitle, color, disc = true }: { title: string;
 
 /** Carátula de un álbum: la imagen si la hay; si no, o si falla, la funda dibujada. */
 export function AlbumCover({ album }: { album: Album }) {
-  const [failed, setFailed] = useState(false)
-  if (!album.cover || failed) return <Sleeve title={album.title} subtitle={album.artist} color={album.color} />
+  // primero la foto del grupo; si no hay o falla, la carátula; si tampoco, la funda dibujada
+  const sources = [album.photo, album.cover].filter(Boolean) as string[]
+  const [attempt, setAttempt] = useState(0)
+  if (attempt >= sources.length) return <Sleeve title={album.title} subtitle={album.artist} color={album.color} />
   return (
     <img
-      src={resolve(album.cover)}
+      key={sources[attempt]}
+      src={resolve(sources[attempt])}
       alt=""
       draggable={false}
-      onError={() => setFailed(true)}
+      onError={() => setAttempt((n) => n + 1)}
       className="absolute inset-0 h-full w-full rounded-[6px] object-cover"
       style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.18), 0 10px 28px rgba(0,0,0,0.55)' }}
     />
@@ -48,7 +51,7 @@ export function AlbumCover({ album }: { album: Album }) {
 }
 
 /** Disco de vinilo girando, con la carátula del álbum como galleta central. */
-export function Vinyl({ album, cover }: { album: Album; cover?: string }) {
+export function Vinyl({ album, cover, spinning = true }: { album: Album; cover?: string; spinning?: boolean }) {
   const [failed, setFailed] = useState(false)
   const label = cover ?? album.cover
   const showCover = label && !failed
@@ -62,6 +65,8 @@ export function Vinyl({ album, cover }: { album: Album; cover?: string }) {
           background:
             'radial-gradient(circle, transparent 0 31%, rgba(255,255,255,0.05) 31.5%, transparent 33%), repeating-radial-gradient(circle, #0c0c0e 0 1.1px, #1b1b1f 1.1px 2.4px)',
           boxShadow: '0 0 0 2px #050505, 0 12px 30px rgba(0,0,0,0.65)',
+          // quieto se queda donde estaba y arranca desde ahí al volver al centro
+          animationPlayState: spinning ? 'running' : 'paused',
         }}
       >
         {/* galleta: carátula o color */}
