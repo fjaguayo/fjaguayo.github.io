@@ -33,7 +33,7 @@ export const PLACEMENTS: ArcadePlacement[] = [
 export const LABELS: Record<ArcadeObjectId, string> = {
   vinilo: 'Mi música',
   recreativa: 'Mis juegos',
-  mesa: 'Mi mesa de DnD',
+  mesa: 'Mi campaña de DnD',
 }
 
 export const ARCADE_HIT = HIT as {
@@ -47,7 +47,7 @@ export const arcadeUrl = (file: string) => `${import.meta.env.BASE_URL}arcade/${
 // ---------------------------------------------------------------------------
 
 /** Tu página de DnD. Mientras esté vacío, la mesa avisa de que llegará pronto. */
-export const DND_URL = ''
+export const DND_URL = 'https://carnedetitanes.github.io/'
 
 // ---------------------------------------------------------------------------
 // Tocadiscos: mis grupos favoritos y sus canciones
@@ -185,22 +185,37 @@ export const trackUrl = (album: Album, track: Track) =>
 export interface Game {
   title: string
   /** Número de la app en Steam: sale en la URL de la tienda, store.steampowered.com/app/<número>/ */
-  steamId: number
-  /** Etiqueta corta opcional (género, horas, una frase). */
+  steamId?: number
+  /** Para juegos que no están en Steam: enlace a su página. */
+  url?: string
+  /** Carátula propia (ruta en public/ o URL). Los de Steam la sacan solos de la tienda. */
+  cover?: string
+  /** Etiqueta corta opcional (plataforma, género, una frase). */
   note?: string
 }
 
-// EJEMPLO: sustitúyelo por tus juegos favoritos antes de publicar.
+// En el mismo orden que mi lista de "Juegos que me gustan".
 export const GAMES: Game[] = [
-  { title: 'Hollow Knight', steamId: 367520 },
-  { title: 'Hades', steamId: 1145360 },
-  { title: 'Stardew Valley', steamId: 413150 },
-  { title: 'Celeste', steamId: 504230 },
-  { title: 'Terraria', steamId: 105600 },
+  { title: 'Ghost of Tsushima', steamId: 2215430 },
+  { title: 'ARK: Survival Evolved', steamId: 346110 },
+  {
+    title: 'inFAMOUS Second Son',
+    url: 'https://www.playstation.com/es-es/games/infamous-second-son/',
+    cover: 'arcade/juegos/infamous-second-son.webp',
+    note: 'PlayStation',
+  },
+  { title: 'Slime Rancher', steamId: 433340 },
+  { title: 'No Rest for the Wicked', steamId: 1371980 },
+  { title: 'For Honor', steamId: 304390 },
+  { title: 'Marvel Rivals', steamId: 2767030 },
+  { title: 'Barony', steamId: 371970 },
   { title: "Baldur's Gate 3", steamId: 1086940 },
+  { title: 'Grounded 2', steamId: 2661300 },
+  { title: 'Subnautica', steamId: 264710 },
+  { title: 'Minecraft', url: 'https://www.minecraft.net/es-es', cover: 'arcade/juegos/minecraft.webp', note: 'Minecraft.net' },
 ]
 
-export const steamUrl = (g: Game) => `https://store.steampowered.com/app/${g.steamId}/`
+export const gameUrl = (g: Game) => g.url ?? `https://store.steampowered.com/app/${g.steamId}/`
 /** Carátula vertical de la biblioteca de Steam; si no existe, se prueba la cabecera horizontal. */
 export const steamCover = (g: Game) => `https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/library_600x900.jpg`
 export const steamHeader = (g: Game) => `https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/header.jpg`

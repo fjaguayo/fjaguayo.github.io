@@ -96,7 +96,7 @@ export function Vinyl({ album, cover }: { album: Album; cover?: string }) {
 
 /** Caja de un juego: carátula vertical de Steam; si no existe, la cabecera; si tampoco, una caja dibujada. */
 export function GameCover({ game }: { game: Game }) {
-  const [step, setStep] = useState<0 | 1 | 2>(0)
+  const [step, setStep] = useState<0 | 1 | 2>(game.cover || game.steamId ? 0 : 2)
   const shell = 'absolute inset-0 overflow-hidden rounded-[6px]'
   const shadow = { boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.18), 0 10px 28px rgba(0,0,0,0.6)' }
 
@@ -104,7 +104,13 @@ export function GameCover({ game }: { game: Game }) {
   return (
     <div className={`${shell} bg-[#0b1020]`} style={shadow}>
       {step === 0 ? (
-        <img src={steamCover(game)} alt="" draggable={false} onError={() => setStep(1)} className="h-full w-full object-cover" />
+        <img
+          src={game.cover ? resolve(game.cover) : steamCover(game)}
+          alt=""
+          draggable={false}
+          onError={() => setStep(game.cover || !game.steamId ? 2 : 1)}
+          className="h-full w-full object-cover"
+        />
       ) : (
         <>
           <img

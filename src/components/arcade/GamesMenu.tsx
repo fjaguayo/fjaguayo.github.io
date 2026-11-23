@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { GAMES, steamUrl } from '../../data/arcade'
+import { GAMES, gameUrl } from '../../data/arcade'
 import { playOpen } from '../../lib/ps2Sound'
 import Ps2Menu from './Ps2Menu'
 import { GameCover } from './visuals'
@@ -31,14 +31,14 @@ export default function GamesMenu({ onClose }: { onClose: () => void }) {
         viewKey="games"
         path={['Mis juegos']}
         shape="tall"
-        enterLabel="Ver en Steam"
+        enterLabel="Ver el juego"
         backLabel="Salir"
         onBack={onClose}
         items={GAMES.map((g) => ({
-          key: String(g.steamId),
+          key: g.title,
           title: g.title,
           subtitle: g.note ?? 'Steam',
-          href: steamUrl(g),
+          href: gameUrl(g),
           visual: <GameCover game={g} />,
         }))}
       />
