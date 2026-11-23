@@ -63,3 +63,10 @@ img {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Discos del Arcade. */
+@keyframes record-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

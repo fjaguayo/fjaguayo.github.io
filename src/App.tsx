@@ -57,6 +57,11 @@ export default function App() {
     return () => window.removeEventListener(ENTER_EVENT, onEnter)
   }, [])
 
+  // desarrollo: /?arcade-edit entra directamente en el Arcade para colocar sus objetos
+  useEffect(() => {
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('arcade-edit')) setInside('arcade')
+  }, [])
+
   const exit = useCallback(() => setInside(null), [])
   const Interior = inside ? INTERIORS[inside] : null
 
