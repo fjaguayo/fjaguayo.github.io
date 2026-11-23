@@ -24,9 +24,9 @@ export interface ArcadePlacement {
 
 export const PLACEMENTS: ArcadePlacement[] = [
   { id: 'sala', x: 50.6, y: 93.2, width: 102.6 },
-  { id: 'vinilo', x: 22.1, y: 81.6, width: 29.5 },
-  { id: 'recreativa', x: 42.2, y: 63.6, width: 24.9 },
-  { id: 'mesa', x: 71.9, y: 85.8, width: 44.9 },
+  { id: 'vinilo', x: 22.1, y: 81.6, width: 26 },
+  { id: 'recreativa', x: 42.2, y: 63.6, width: 21 },
+  { id: 'mesa', x: 72, y: 85.8, width: 36 },
 ]
 
 /** Nombre que sale en la etiqueta al pasar el ratón. */
