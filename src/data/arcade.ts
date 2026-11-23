@@ -87,6 +87,7 @@ const sp = (hash: string) => `https://i.scdn.co/image/ab67616d0000b273${hash}`
 export const ALBUMS: Album[] = [
   {
     id: 'the-neighbourhood',
+    photo: 'arcade/grupos/the-neighbourhood.webp',
     title: 'The Neighbourhood',
     cover: sp('c91ed3bc3c8d484f532fab2f'),
     color: '#8a8f99',
@@ -102,6 +103,7 @@ export const ALBUMS: Album[] = [
   },
   {
     id: 'arctic-monkeys',
+    photo: 'arcade/grupos/arctic-monkeys.webp',
     title: 'Arctic Monkeys',
     cover: sp('4ae1c4c5c45aabe565499163'),
     color: '#c9c9c9',
@@ -117,6 +119,7 @@ export const ALBUMS: Album[] = [
   },
   {
     id: 'cigarettes-after-sex',
+    photo: 'arcade/grupos/cigarettes-after-sex.webp',
     title: 'Cigarettes After Sex',
     cover: sp('12b69bf576f5e80291f75161'),
     color: '#9a9a9a',
@@ -129,23 +132,10 @@ export const ALBUMS: Album[] = [
       { title: 'Cry', spotify: tr('3p4hRhMcb6ch8OLtATMaLw') },
     ],
   },
-  {
-    id: 'eminem',
-    title: 'Eminem',
-    cover: sp('6ca5c90113b30c3c43ffb8f4'),
-    color: '#d6a04a',
-    tracks: [
-      { title: 'Without Me', spotify: tr('7lQ8MOhq6IN2w8EYcFNSUk'), cover: sp('6ca5c90113b30c3c43ffb8f4') },
-      { title: 'Superman', spotify: tr('4woTEX1wYOTGDqNXuavlRC') },
-      { title: "'Till I Collapse", spotify: tr('4xkOaSrkexMciUUogZKVTS') },
-      { title: 'Mockingbird', spotify: tr('561jH07mF1jHuk7KlaeF0s') },
-      { title: 'The Real Slim Shady', spotify: tr('3yfqSUWxFvZELEM4PmlwIR') },
-      { title: 'Godzilla', spotify: tr('7FIWs0pqAYbP91WWM0vlTQ') },
-      { title: 'My Name Is', spotify: tr('75IN3CtuZwTHTnZvYM4qnJ') },
-    ],
-  },
+
   {
     id: 'imagine-dragons',
+    photo: 'arcade/grupos/imagine-dragons.webp',
     title: 'Imagine Dragons',
     cover: sp('5675e83f707f1d7271e5cf8a'),
     color: '#4d9de0',
@@ -160,21 +150,7 @@ export const ALBUMS: Album[] = [
       { title: 'Wrecked', spotify: tr('2d1MywHy6FwKdzxFuSJnwl') },
     ],
   },
-  {
-    id: 'los-diozes',
-    title: 'Los Diozes',
-    cover: sp('9583673af04af6d27def8a9c'),
-    color: '#ee4266',
-    tracks: [
-      { title: 'LOS DIOZES SON', spotify: tr('55nwmdewvMJQtYzdpO8kQp'), cover: sp('9583673af04af6d27def8a9c') },
-      { title: 'KIEN E', spotify: tr('3Gr9GO7T0zWvUxam292xWb') },
-      { title: 'PAYAS', spotify: tr('3472HK3lBvAPE6pQw6iCeX') },
-      { title: 'CHEKI', spotify: tr('5d7AXylq0DJxs5T3RGhn9v') },
-      { title: 'DIABLA', spotify: tr('1ClllOVu94nr1s1c2C7cvK') },
-      { title: 'TOP ERDIO', spotify: tr('4bVepteBdttocPtvdUbU80') },
-      { title: 'TU KIERE', spotify: tr('3XZ5yzEqFrvbezxOVSK20v') },
-    ],
-  },
+
 ]
 
 export const trackUrl = (album: Album, track: Track) =>
