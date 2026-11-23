@@ -53,9 +53,9 @@ export default function MusicMenu({ onClose }: { onClose: () => void }) {
               items={album.tracks.map((t, i) => ({
                 key: `${i}-${t.title}`,
                 title: t.title,
-                subtitle: `${album.artist} · Pista ${String(i + 1).padStart(2, '0')}`,
+                subtitle: `${album.artist ?? album.title} · ${String(i + 1).padStart(2, '0')}`,
                 href: trackUrl(album, t),
-                visual: <Vinyl album={album} />,
+                visual: <Vinyl album={album} cover={t.cover} />,
               }))}
             />
           </motion.div>
@@ -71,7 +71,7 @@ export default function MusicMenu({ onClose }: { onClose: () => void }) {
               items={ALBUMS.map((a) => ({
                 key: a.id,
                 title: a.title,
-                subtitle: [a.artist, a.year].filter(Boolean).join(' · '),
+                subtitle: [a.artist, a.year, `${a.tracks.length} canciones`].filter(Boolean).join(' · '),
                 onSelect: () => setAlbum(a),
                 visual: <AlbumCover album={a} />,
               }))}

@@ -48,9 +48,10 @@ export function AlbumCover({ album }: { album: Album }) {
 }
 
 /** Disco de vinilo girando, con la carátula del álbum como galleta central. */
-export function Vinyl({ album }: { album: Album }) {
+export function Vinyl({ album, cover }: { album: Album; cover?: string }) {
   const [failed, setFailed] = useState(false)
-  const showCover = album.cover && !failed
+  const label = cover ?? album.cover
+  const showCover = label && !failed
   return (
     <div className="absolute inset-0">
       {/* resplandor del color del álbum detrás del disco */}
@@ -69,13 +70,7 @@ export function Vinyl({ album }: { album: Album }) {
           style={{ background: album.color, boxShadow: '0 0 0 2px rgba(0,0,0,0.6)' }}
         >
           {showCover ? (
-            <img
-              src={resolve(album.cover!)}
-              alt=""
-              draggable={false}
-              onError={() => setFailed(true)}
-              className="h-full w-full object-cover"
-            />
+            <img src={resolve(label!)} alt="" draggable={false} onError={() => setFailed(true)} className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full w-full items-start justify-center pt-[18%] text-[0px]">
               <span className="block h-[10%] w-[60%] rounded-full bg-white/50" />
