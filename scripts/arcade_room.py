@@ -20,7 +20,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 import cv2.xphoto  # noqa: F401  (opencv-contrib-python-headless)
 from cutout import connected_to_border, disk, save_rgba, R_FRAC, E_FRAC
@@ -84,6 +84,91 @@ def clear_marquee(hd: np.ndarray) -> np.ndarray:
     w = cv2.GaussianBlur(mq.astype(np.float32), (0, 0), 0.8 * SCALE)[..., None]
     w = np.clip(w * 1.6, 0, 1)
     return (fill * w + f * (1 - w)).astype(np.uint8)
+
+
+# Dados de la mesa de DnD (píxeles del original), de atrás adelante. En el dibujo eran manchas con
+# números borrosos; se redibujan como figuras geométricas planas: caras en tres tonos y contorno oscuro.
+# Tipos: "d20" (hexágono con triángulo central), "cubo" (6 vértices: arriba-izq, arriba, arriba-der,
+# abajo-der, abajo, abajo-izq), "rombo" (4 vértices: arriba, derecha, abajo, izquierda; d8, d10 y d4).
+RED = ((214, 96, 98), (172, 58, 64), (118, 34, 46))
+BLUE = ((170, 205, 238), (112, 152, 204), (68, 98, 150))
+DICE = [
+    ("d20", RED, [(710.5, 345), (723.5, 352.5), (723, 370), (708, 379), (694, 372), (693, 355)]),
+    ("rombo", RED, [(745.5, 381), (754.5, 393), (746, 400), (735.5, 393)]),
+    ("rombo", BLUE, [(811, 360.5), (818.5, 373), (811, 377), (804, 373)]),
+    ("cubo", BLUE, [(703.6, 383), (711, 380.7), (720.7, 383.6), (721.4, 398.6), (713.6, 401.4), (703.6, 397.1)]),
+    ("cubo", BLUE, [(746, 402), (753, 398), (762, 402), (762, 409), (754, 412.5), (746, 409)]),
+    ("cubo", BLUE, [(717, 397), (727, 393.5), (739, 400), (738.6, 413), (728, 418), (716.4, 413)]),
+    ("rombo", BLUE, [(773.5, 396), (782, 407), (771, 419), (763, 407)]),
+    ("cubo", BLUE, [(743, 415), (752, 411), (761, 415), (761, 427), (752, 431), (743, 427)]),
+]
+INK = (31, 21, 48)
+
+
+def redraw_dice(hd: np.ndarray) -> np.ndarray:
+    """Pinta los dados encima de la versión nítida, con antialias (se dibuja a x4 y se reduce)."""
+    from PIL import ImageDraw
+
+    pts_all = np.array([p for _, _, pts in DICE for p in pts]) * SCALE
+    x0, y0 = (pts_all.min(axis=0) - 6).astype(int)
+    x1, y1 = (pts_all.max(axis=0) + 6).astype(int)
+    SS = 4
+    layer = Image.new("RGBA", ((x1 - x0) * SS, (y1 - y0) * SS), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    k = SCALE * SS
+    lw = round(0.9 * k)
+
+    def P(p):
+        return ((p[0] * SCALE - x0) * SS, (p[1] * SCALE - y0) * SS)
+
+    def poly(pts, fill):
+        d.polygon([P(p) for p in pts], fill=fill + (255,))
+
+    def line(a, b, w=None):
+        d.line([P(a), P(b)], fill=INK + (255,), width=w or max(1, lw // 2))
+
+    for kind, (light, mid, dark), v in DICE:
+        c = (sum(p[0] for p in v) / len(v), sum(p[1] for p in v) / len(v))
+        if kind == "cubo":
+            tl, t, tr, br, b, bl = v
+            cc = (t[0] + (b[0] - t[0]) * 0.33, t[1] + (b[1] - t[1]) * 0.33)  # esquina de delante
+            poly([tl, t, tr, cc], light)
+            poly([tl, cc, b, bl], mid)
+            poly([cc, tr, br, b], dark)
+            line(tl, cc); line(cc, tr); line(cc, b)
+        elif kind == "d20":
+            poly(v, mid)
+            # triángulo central hacia arriba y las caras de alrededor
+            tri = [(c[0] + (v[0][0] - c[0]) * 0.45, c[1] + (v[0][1] - c[1]) * 0.45),
+                   (c[0] + (v[2][0] - c[0]) * 0.5, c[1] + (v[2][1] - c[1]) * 0.5),
+                   (c[0] + (v[4][0] - c[0]) * 0.5, c[1] + (v[4][1] - c[1]) * 0.5)]
+            poly([v[5], v[0], tri[0]], light)
+            poly([v[0], v[1], tri[0]], light)
+            poly([v[2], v[3], tri[1]], dark)
+            poly([v[3], v[4], tri[2]], dark)
+            poly(tri, light)
+            for a, b in ((tri[0], tri[1]), (tri[1], tri[2]), (tri[2], tri[0])):
+                line(a, b)
+            for vi, ti in ((5, 0), (0, 0), (1, 0), (1, 1), (2, 1), (3, 1), (3, 2), (4, 2), (5, 2)):
+                line(v[vi], tri[ti])
+        else:  # rombo
+            t, r, b, l = v
+            m = ((l[0] + r[0]) / 2, (l[1] + r[1]) / 2)
+            poly([t, m, l], light)
+            poly([t, r, m], mid)
+            poly([l, m, b], mid)
+            poly([m, r, b], dark)
+            line(l, r); line(t, b)
+        d.polygon([P(p) for p in v], outline=INK + (255,), width=lw)
+
+    # un pelo de suavizado para que case con el trazo pintado del resto de la mesa
+    layer = layer.resize((x1 - x0, y1 - y0), Image.LANCZOS).filter(ImageFilter.GaussianBlur(0.5))
+    a = np.array(layer).astype(np.float32) / 255
+    region = hd[y0:y1, x0:x1].astype(np.float32)
+    region = region * (1 - a[..., 3:4]) + a[..., :3] * 255 * a[..., 3:4]
+    out = hd.copy()
+    out[y0:y1, x0:x1] = np.clip(region, 0, 255).astype(np.uint8)
+    return out
 
 
 def poly_mask(shape, pts, grow=2):
@@ -295,6 +380,7 @@ def main():
     if HD.exists():
         hd = np.array(Image.open(HD).convert("RGB"))
         hd = clear_marquee(hd)
+        hd = redraw_dice(hd)
         hd = hd.astype(np.float32)
         # en la sala, el suelo que tapaban los objetos sale del relleno, ampliado
         filled_up = cv2.resize(filled, (hd.shape[1], hd.shape[0]), interpolation=cv2.INTER_CUBIC)
