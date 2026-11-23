@@ -24,7 +24,23 @@ function toSource(list: ArcadePlacement[]) {
   return `export const PLACEMENTS: ArcadePlacement[] = [\n${lines.join('\n')}\n]\n`
 }
 
-export default function ArcadeEditor({ placements, onChange }: Props) {
+/** Interruptor: "Probar" deja usar la sala con normalidad; "Colocar" saca los marcos para mover las piezas. */
+export default function ArcadeEditor(props: Props) {
+  const [placing, setPlacing] = useState(false)
+  if (placing) return <Editor {...props} onDone={() => setPlacing(false)} />
+  return createPortal(
+    <button
+      type="button"
+      onClick={() => setPlacing(true)}
+      className="fixed bottom-3 left-3 z-[40000] cursor-pointer rounded-xl border-4 border-ink bg-sun px-4 py-2 font-display text-base uppercase leading-none tracking-wide text-ink shadow-[4px_4px_0_var(--color-ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+    >
+      Colocar objetos
+    </button>,
+    document.body,
+  )
+}
+
+function Editor({ placements, onChange, onDone }: Props & { onDone: () => void }) {
   const [selected, setSelected] = useState<ArcadePieceId | null>(null)
   const [copied, setCopied] = useState(false)
   const [side, setSide] = useState<'left' | 'right'>('right')
@@ -166,6 +182,13 @@ export default function ArcadeEditor({ placements, onChange }: Props) {
             className="mt-3 w-full cursor-pointer rounded-lg border-4 border-ink bg-sun py-1.5 font-display uppercase tracking-wide shadow-[3px_3px_0_var(--color-ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
           >
             {copied ? 'Copiado' : 'Copiar coordenadas'}
+          </button>
+          <button
+            type="button"
+            onClick={onDone}
+            className="mt-2 w-full cursor-pointer rounded-lg border-4 border-ink bg-mint py-1.5 font-display uppercase tracking-wide shadow-[3px_3px_0_var(--color-ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          >
+            Probar la sala
           </button>
           <textarea
             ref={outRef}
