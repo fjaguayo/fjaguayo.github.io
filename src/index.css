@@ -70,3 +70,35 @@ img {
     transform: rotate(360deg);
   }
 }
+
+/* Barra del volumen: carril con borde de tinta y relleno amarillo, tirador cuadrado como los botones. */
+.fjah-range {
+  appearance: none;
+  height: 14px;
+  border: 3px solid var(--color-ink);
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--color-sun) var(--fill, 100%), var(--color-cream) var(--fill, 100%));
+  cursor: pointer;
+  outline: none;
+}
+.fjah-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--color-ink);
+  border-radius: 6px;
+  background: var(--color-berry);
+  box-shadow: 2px 2px 0 var(--color-ink);
+}
+.fjah-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--color-ink);
+  border-radius: 6px;
+  background: var(--color-berry);
+  box-shadow: 2px 2px 0 var(--color-ink);
+}
+.fjah-range:focus-visible {
+  outline: 3px solid var(--color-sun);
+  outline-offset: 3px;
+}

@@ -2,7 +2,7 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import CityMap from './components/CityMap'
 import ComingSoon from './components/ComingSoon'
-import MusicToggle from './components/MusicToggle'
+import MusicVolume from './components/MusicVolume'
 import { BUILDINGS, type BuildingId } from './data/buildings'
 import { ENTER_EVENT } from './lib/enterBuilding'
 import { createAmbientMusic } from './lib/ambientMusic'
@@ -23,7 +23,9 @@ export default function App() {
 
   // música de la ciudad: el navegador no deja sonar nada hasta el primer clic o tecla
   const music = useRef(createAmbientMusic())
-  const [musicOn, setMusicOn] = useState(true)
+  // volumen de 0 a 1; a 0 la música se para del todo
+  const [volume, setVolume] = useState(1)
+  const musicOn = volume > 0
   const [unlocked, setUnlocked] = useState(false)
 
   useEffect(() => {
@@ -44,6 +46,10 @@ export default function App() {
     if (musicOn && (!inside || KEEPS_MUSIC.includes(inside))) m.play()
     else m.pause()
   }, [unlocked, musicOn, inside])
+
+  useEffect(() => {
+    music.current?.setLevel(volume)
+  }, [volume])
 
   useEffect(() => {
     const onEnter = (e: Event) => {
@@ -78,7 +84,7 @@ export default function App() {
           )}
         </CityMap>
         <ComingSoon />
-        {music.current && <MusicToggle on={musicOn} onToggle={() => setMusicOn((v) => !v)} />}
+        {music.current && <MusicVolume volume={volume} onChange={setVolume} />}
       </div>
 
       <AnimatePresence mode="wait" onExitComplete={() => !insideRef.current && returnFocus.current?.focus({ preventScroll: true })}>

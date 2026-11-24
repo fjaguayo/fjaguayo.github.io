@@ -9,7 +9,7 @@ const BPM = 70
 const BEAT = 60 / BPM
 const STEP = BEAT / 2 // corcheas
 const STEPS_PER_CHORD = 16 // dos compases de 4/4
-const VOLUME = 0.6 // con un limitador al final para que no sature
+const VOLUME = 0.6 // volumen máximo (nivel 1), con un limitador al final para que no sature
 
 const CHORDS = [
   { bass: 36, pad: [60, 64, 67, 71] }, // Cmaj7
@@ -27,6 +27,8 @@ export interface AmbientMusic {
   play: () => void
   /** Baja el volumen con un fundido y deja el audio en pausa. */
   pause: () => void
+  /** Nivel de 0 a 1 (1 = volumen normal). Se aplica con una rampa corta si está sonando. */
+  setLevel: (level: number) => void
 }
 
 export function createAmbientMusic(): AmbientMusic | null {
@@ -43,6 +45,7 @@ export function createAmbientMusic(): AmbientMusic | null {
   let melodyIndex = 2
   let playing = false
   let suspendTimer: number | undefined
+  let level = 1
 
   const setup = () => {
     ctx = new Ctx()
@@ -185,7 +188,7 @@ export function createAmbientMusic(): AmbientMusic | null {
       }
       master.gain.cancelScheduledValues(c.currentTime)
       master.gain.setValueAtTime(master.gain.value, c.currentTime)
-      master.gain.linearRampToValueAtTime(VOLUME, c.currentTime + 2.5)
+      master.gain.linearRampToValueAtTime(VOLUME * level, c.currentTime + 2.5)
     },
     pause() {
       if (!ctx || !playing) return
@@ -196,6 +199,14 @@ export function createAmbientMusic(): AmbientMusic | null {
       master.gain.setValueAtTime(master.gain.value, c.currentTime)
       master.gain.linearRampToValueAtTime(0, c.currentTime + 0.8)
       suspendTimer = window.setTimeout(() => void c.suspend().catch(() => {}), 900)
+    },
+    setLevel(next) {
+      level = Math.min(1, Math.max(0, next))
+      if (!ctx || !playing) return
+      const c = ctx
+      master.gain.cancelScheduledValues(c.currentTime)
+      master.gain.setValueAtTime(master.gain.value, c.currentTime)
+      master.gain.linearRampToValueAtTime(VOLUME * level, c.currentTime + 0.15)
     },
   }
 }
