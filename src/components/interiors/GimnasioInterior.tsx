@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion'
-import { ROUTINES, SYMMETRY, gymUrl, type Routine } from '../../data/gym'
+import { GYM_EN, ROUTINES, SYMMETRY, gymUrl, type Routine } from '../../data/gym'
 import ExitButton from './ExitButton'
+import { useLang } from '../../lib/i18n'
+
+/** Traduce un texto del gimnasio si la web está en inglés. */
+function useGymText() {
+  const { en } = useLang()
+  return (s: string) => (en ? (GYM_EN[s] ?? s) : s)
+}
 
 interface Props {
   onExit: () => void
@@ -8,6 +15,7 @@ interface Props {
 
 /** El Gimnasio: en el centro, el cuerpo y el rango de Symmetry; a los lados, la rutina en cuatro bloques. */
 export default function GimnasioInterior({ onExit }: Props) {
+  const { t } = useLang()
   const left = ROUTINES.slice(0, 2)
   const right = ROUTINES.slice(2)
 
@@ -15,22 +23,22 @@ export default function GimnasioInterior({ onExit }: Props) {
     <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4 compact:px-2 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+8px)]">
       <button
         type="button"
-        aria-label="Cerrar el gimnasio"
+        aria-label={t('Cerrar el gimnasio', 'Close the gym')}
         tabIndex={-1}
         onClick={onExit}
         className="absolute inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
       />
 
       <motion.section
-        aria-label="Gimnasio: rango y rutina de entrenamiento"
+        aria-label={t('Gimnasio: rango y rutina de entrenamiento', 'Gym: rank and training routine')}
         initial={{ y: 40, scale: 0.94, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 26 }}
         className="relative flex max-h-full w-[min(1400px,96vw)] flex-col overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)] compact:w-full compact:max-w-[1400px] compact:shadow-[5px_5px_0_var(--color-ink)]"
       >
         <header className="flex items-center justify-between border-b-4 border-ink bg-berry px-5 py-3 compact:px-4 compact:py-2.5">
-          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-white compact:text-xl">Gimnasio</h2>
-          <span className="text-sm font-bold text-white/90">Mi rutina semanal</span>
+          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-white compact:text-xl">{t('Gimnasio', 'Gym')}</h2>
+          <span className="text-sm font-bold text-white/90">{t('Mi rutina semanal', 'My weekly routine')}</span>
         </header>
 
         {/* en el ordenador, rango en el centro y rutinas a los lados; en el móvil, todo en una columna con el rango arriba */}
@@ -57,6 +65,8 @@ export default function GimnasioInterior({ onExit }: Props) {
 }
 
 function RankPanel() {
+  const { t } = useLang()
+  const g = useGymText()
   return (
     <motion.div
       initial={{ y: 24, opacity: 0 }}
@@ -67,17 +77,17 @@ function RankPanel() {
       <div className="flex w-full items-center gap-3 rounded-xl border-[3px] border-white/25 bg-white/5 px-4 py-3">
         <SilverBadge />
         <div className="min-w-0">
-          <span className="block text-[11px] font-bold uppercase tracking-widest text-white/50">Rango Symmetry</span>
+          <span className="block text-[11px] font-bold uppercase tracking-widest text-white/50">{t('Rango Symmetry', 'Symmetry rank')}</span>
           <span className="block font-display text-3xl uppercase leading-none tracking-wide text-[#dfe6ee]">
-            {SYMMETRY.rank}
+            {g(SYMMETRY.rank)}
           </span>
-          <span className="block text-sm font-semibold text-white/70">{SYMMETRY.percentile}</span>
+          <span className="block text-sm font-semibold text-white/70">{g(SYMMETRY.percentile)}</span>
         </div>
       </div>
 
       <img
         src={gymUrl('cuerpo')}
-        alt="Mapa muscular de Symmetry: core y aductores en oro, el resto del cuerpo en plata"
+        alt={t('Mapa muscular de Symmetry: core y aductores en oro, el resto del cuerpo en plata', 'Symmetry muscle map: core and adductors in gold, the rest of the body in silver')}
         draggable={false}
         className="min-h-0 w-auto flex-1 object-contain"
         // en pantallas bajas no se encoge por debajo de 240 px: el panel ya se desplaza
@@ -88,14 +98,14 @@ function RankPanel() {
         href={SYMMETRY.url}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Ver mi perfil en Symmetry (se abre en otra pestaña)"
+        aria-label={t('Ver mi perfil en Symmetry (se abre en otra pestaña)', 'See my Symmetry profile (opens in a new tab)')}
         whileHover={{ y: -3, scale: 1.03 }}
         whileFocus={{ y: -3, scale: 1.03 }}
         whileTap={{ scale: 0.97 }}
         transition={{ type: 'spring', stiffness: 400, damping: 22 }}
         className="flex w-full items-center justify-center gap-2 rounded-xl border-4 border-ink bg-sun px-4 py-2.5 font-display text-lg uppercase leading-none tracking-wide text-ink no-underline shadow-[4px_4px_0_#000] outline-none focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-sky"
       >
-        Ver mi Symmetry
+        {t('Ver mi Symmetry', 'See my Symmetry')}
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={3}>
           <path d="M7 17L17 7M9 7h8v8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -105,6 +115,7 @@ function RankPanel() {
 }
 
 function RoutineCard({ routine, delay, from }: { routine: Routine; delay: number; from: number }) {
+  const g = useGymText()
   return (
     <motion.article
       initial={{ x: from, opacity: 0 }}
@@ -116,20 +127,20 @@ function RoutineCard({ routine, delay, from }: { routine: Routine; delay: number
         className="flex items-baseline justify-between gap-3 border-b-4 border-ink px-4 py-2"
         style={{ background: routine.color }}
       >
-        <h3 className="m-0 font-display text-xl uppercase leading-none tracking-wide text-ink">{routine.name}</h3>
+        <h3 className="m-0 font-display text-xl uppercase leading-none tracking-wide text-ink">{g(routine.name)}</h3>
         <span className="shrink-0 rounded-full border-[3px] border-ink bg-white px-2.5 py-0.5 text-xs font-extrabold uppercase text-ink">
-          {routine.meta}
+          {g(routine.meta)}
         </span>
       </header>
 
-      <p className="m-0 px-4 pt-2 text-xs font-bold uppercase tracking-wide text-ink/55">{routine.focus}</p>
+      <p className="m-0 px-4 pt-2 text-xs font-bold uppercase tracking-wide text-ink/55">{g(routine.focus)}</p>
 
       <ol className="m-0 list-none px-4 pt-1 pb-3">
         {routine.exercises.map((ex) => (
           <li key={ex.name + ex.gear} className="flex items-center justify-between gap-3 border-b-2 border-dashed border-ink/15 py-1.5 last:border-b-0">
             <span className="min-w-0 text-[15px] font-semibold leading-tight text-ink">
-              {ex.name}
-              {ex.gear && <span className="font-medium text-ink/55"> · {ex.gear}</span>}
+              {g(ex.name)}
+              {ex.gear && <span className="font-medium text-ink/55"> · {g(ex.gear)}</span>}
             </span>
             <span className="shrink-0 rounded-md border-2 border-ink bg-cream px-2 py-0.5 font-display text-sm leading-none tracking-wide text-ink">
               {ex.sets} × {ex.reps}

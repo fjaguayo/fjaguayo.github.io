@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import ExitButton from './ExitButton'
+import { useLang } from '../../lib/i18n'
 
 interface Props {
   onExit: () => void
@@ -22,26 +23,27 @@ const logoUrl = (name: string) => `${import.meta.env.BASE_URL}social/${name}.web
 
 /** El Centro Cívico abre un tablón con las redes sociales de Javier. */
 export default function SocialInterior({ onExit }: Props) {
+  const { t } = useLang()
   return (
     <div className="fixed inset-0 flex overflow-y-auto px-4 pt-20 pb-4 compact:px-3 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+12px)]">
       {/* la ciudad se queda detrás, oscurecida; un clic fuera del tablón vuelve */}
       <button
         type="button"
-        aria-label="Cerrar las redes sociales"
+        aria-label={t('Cerrar las redes sociales', 'Close social networks')}
         tabIndex={-1}
         onClick={onExit}
         className="fixed inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
       />
 
       <motion.section
-        aria-label="Redes sociales de Javier Aguayo"
+        aria-label={t('Redes sociales de Javier Aguayo', "Javier Aguayo's social networks")}
         initial={{ y: 40, scale: 0.94, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 26 }}
         className="relative m-auto w-[min(1120px,94vw)] overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[8px_8px_0_var(--color-ink)] compact:w-full compact:max-w-[1120px] compact:shadow-[5px_5px_0_var(--color-ink)]"
       >
         <header className="border-b-4 border-ink bg-mint px-5 py-3 compact:px-4 compact:py-2.5">
-          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-ink compact:text-xl">Redes sociales</h2>
+          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-ink compact:text-xl">{t('Redes sociales', 'Social networks')}</h2>
         </header>
 
         {/* cinco en fila en el ordenador; en el móvil, dos (vertical) o cinco más pequeñas (horizontal) */}
@@ -59,7 +61,7 @@ export default function SocialInterior({ onExit }: Props) {
                 href={n.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`${n.name}: ${n.handle} (se abre en otra pestaña)`}
+                aria-label={`${n.name}: ${n.handle} ${t('(se abre en otra pestaña)', '(opens in a new tab)')}`}
                 whileHover={{ y: -6, rotate: 0, scale: 1.04 }}
                 whileFocus={{ y: -6, rotate: 0, scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}

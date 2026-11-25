@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { motion, type PanInfo } from 'framer-motion'
 import { playTick } from '../../lib/ps2Sound'
 import { Fog, PadIcon } from './Ps2Menu'
+import { useLang } from '../../lib/i18n'
 
 export interface CarouselItem {
   key: string
@@ -35,6 +36,7 @@ export default function Ps2Carousel({ path, items, onBack, backLabel, enterLabel
   const n = items.length
   // posición continua: sube o baja sin límite, así el giro siempre va por el camino corto
   const [pos, setPos] = useState(initialIndex)
+  const { t } = useLang()
   const active = ((pos % n) + n) % n
   const current = items[active]
   const centerRef = useRef<HTMLElement | null>(null)
@@ -117,7 +119,7 @@ export default function Ps2Carousel({ path, items, onBack, backLabel, enterLabel
           const scale = isActive ? 1 : 0.42 + 0.4 * front ** 1.6
           const opacity = depth < -0.55 ? 0 : 0.25 + 0.75 * front ** 1.3
           const common = {
-            'aria-label': [item.title, item.subtitle, isActive && item.href ? '(se abre en otra pestaña)' : ''].filter(Boolean).join(', '),
+            'aria-label': [item.title, item.subtitle, isActive && item.href ? t('(se abre en otra pestaña)', '(opens in a new tab)') : ''].filter(Boolean).join(', '),
             tabIndex: isActive ? 0 : -1,
             className:
               'block h-full w-full cursor-pointer rounded-[10px] border-0 bg-transparent p-0 text-inherit outline-none focus-visible:ring-4 focus-visible:ring-[#7ea6ff]/70' +
@@ -223,7 +225,7 @@ export default function Ps2Carousel({ path, items, onBack, backLabel, enterLabel
       <footer className="absolute right-[calc(var(--safe-right)+28px)] bottom-[calc(var(--safe-bottom)+22px)] z-10 flex items-center gap-6 text-[15px] font-light tracking-[0.08em] text-[#dfe9ff] compact:right-4 compact:bottom-[calc(var(--safe-bottom)+14px)] compact:gap-4 compact:text-sm">
         <span className="flex items-center gap-2 compact:hidden" aria-hidden="true">
           <span className="rounded border border-[#c9d6f5]/60 px-1.5 text-xs">← →</span>
-          Girar
+          {t('Girar', 'Spin')}
         </span>
         <span className="flex items-center gap-2" aria-hidden="true">
           <PadIcon kind="cross" />
@@ -243,11 +245,12 @@ export default function Ps2Carousel({ path, items, onBack, backLabel, enterLabel
 }
 
 function ArrowButton({ side, onClick }: { side: 'left' | 'right'; onClick: () => void }) {
+  const { t } = useLang()
   return (
     <button
       type="button"
       tabIndex={-1}
-      aria-label={side === 'left' ? 'Anterior' : 'Siguiente'}
+      aria-label={side === 'left' ? t('Anterior', 'Previous') : t('Siguiente', 'Next')}
       onClick={onClick}
       className={`absolute top-[44%] z-[300] flex h-14 w-14 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-[#c9d6f5]/40 bg-[#0b1430]/70 text-[#dfe9ff] backdrop-blur-sm transition hover:scale-110 hover:border-[#c9d6f5] hover:text-white compact:h-11 compact:w-11 ${
         side === 'left' ? 'left-[calc(var(--safe-left)+3vw)]' : 'right-[calc(var(--safe-right)+3vw)]'

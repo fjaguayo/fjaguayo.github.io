@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { AnimatePresence, motion } from 'framer-motion'
 import { MAP_SIZE, assetUrl, type BuildingConfig } from '../data/buildings'
 import { useMediaQuery } from '../lib/useMediaQuery'
+import { useLang } from '../lib/i18n'
 import Birds from './Birds'
 import Building from './Building'
 
@@ -27,6 +28,7 @@ export default function CityMap({ buildings, editing = false, children }: Props)
   const scrollMode = useMediaQuery(SCROLL_QUERY) && !editing
   const scroller = useRef<HTMLDivElement>(null)
   const [hint, setHint] = useState(false)
+  const { t } = useLang()
 
   // al entrar (o al girar el móvil) se empieza mirando el centro de la ciudad
   useLayoutEffect(() => {
@@ -52,7 +54,7 @@ export default function CityMap({ buildings, editing = false, children }: Props)
         fetchPriority="high"
         className="absolute inset-0 h-full w-full"
       />
-      <nav aria-label="Edificios de FJAH City" className="absolute inset-0">
+      <nav aria-label={t('Edificios de FJAH City', 'FJAH City buildings')} className="absolute inset-0">
         {ordered.map((b) => (
           <Building key={b.id} building={b} editing={editing} />
         ))}
@@ -105,7 +107,7 @@ export default function CityMap({ buildings, editing = false, children }: Props)
               >
                 <path d="M8 7l-5 5 5 5M16 7l5 5-5 5M3 12h18" />
               </motion.svg>
-              Desliza para recorrer la ciudad
+              {t('Desliza para recorrer la ciudad', 'Swipe to explore the city')}
             </motion.div>
           )}
         </AnimatePresence>

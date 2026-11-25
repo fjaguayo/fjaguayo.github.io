@@ -3,10 +3,12 @@ import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import CityMap from './components/CityMap'
 import ComingSoon from './components/ComingSoon'
 import MusicToggle from './components/MusicToggle'
+import LangToggle from './components/LangToggle'
 import { BUILDINGS, type BuildingId } from './data/buildings'
 import { ENTER_EVENT } from './lib/enterBuilding'
 import { createAmbientMusic } from './lib/ambientMusic'
 import { INTERIORS, KEEPS_MUSIC } from './interiors'
+import { useLang } from './lib/i18n'
 
 // Modo de colocación: solo en desarrollo y con ?edit en la URL.
 // En producción esta rama desaparece del bundle.
@@ -14,6 +16,7 @@ const PlacementEditor = import.meta.env.DEV ? lazy(() => import('./components/Pl
 const editing = !!PlacementEditor && new URLSearchParams(window.location.search).has('edit')
 
 export default function App() {
+  const { t, buildingName } = useLang()
   const [buildings, setBuildings] = useState(BUILDINGS)
   const [inside, setInside] = useState<BuildingId | null>(null)
   // al salir, el foco vuelve al edificio por el que se entró
@@ -68,7 +71,7 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <h1 className="sr-only">FJAH City, el portfolio de Javier Aguayo</h1>
+      <h1 className="sr-only">{t('FJAH City, el portfolio de Javier Aguayo', "FJAH City, Javier Aguayo's portfolio")}</h1>
       <div inert={!!inside}>
         <CityMap buildings={buildings} editing={editing}>
           {editing && PlacementEditor && (
@@ -87,7 +90,7 @@ export default function App() {
             key={inside}
             role="dialog"
             aria-modal="true"
-            aria-label={BUILDINGS.find((b) => b.id === inside)?.label}
+            aria-label={inside ? buildingName(inside) : undefined}
             className="fixed inset-0 z-[30000]"
             initial={{ opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -100,6 +103,8 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <LangToggle />
     </MotionConfig>
   )
 }

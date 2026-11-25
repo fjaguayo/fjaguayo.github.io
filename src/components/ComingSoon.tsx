@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { BUILDINGS, type BuildingId } from '../data/buildings'
+import type { BuildingId } from '../data/buildings'
 import { ENTER_EVENT } from '../lib/enterBuilding'
 import { hasInterior } from '../interiors'
+import { useLang } from '../lib/i18n'
 
 /** Aviso discreto de "Próximamente" al hacer clic en un edificio que aún no tiene interior. */
 export default function ComingSoon() {
+  const { t, buildingName } = useLang()
   const [current, setCurrent] = useState<{ id: BuildingId; n: number } | null>(null)
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function ComingSoon() {
     return () => window.clearTimeout(t)
   }, [current])
 
-  const label = current && BUILDINGS.find((b) => b.id === current.id)?.label
+  const label = current && buildingName(current.id)
 
   return (
     <div
@@ -45,7 +47,7 @@ export default function ComingSoon() {
             <span className="block font-display text-xl uppercase leading-none tracking-wide text-ink">
               {label}
             </span>
-            <span className="mt-1 block text-sm font-semibold text-ink/80">Próximamente</span>
+            <span className="mt-1 block text-sm font-semibold text-ink/80">{t('Próximamente', 'Coming soon')}</span>
           </motion.div>
         )}
       </AnimatePresence>

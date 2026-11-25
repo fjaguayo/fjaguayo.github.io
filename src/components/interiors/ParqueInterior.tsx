@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MAP, PETS, PET_HIT, PLACEMENTS, parqueUrl, type Placement, type PetKind } from '../../data/mascotas'
 import ExitButton from './ExitButton'
+import { useLang } from '../../lib/i18n'
 
 interface Props {
   onExit: () => void
@@ -12,6 +13,7 @@ const ratio = MAP.width / MAP.height
 /** El Parque: los terrarios de Javier con sus mascotas. Al pulsar una, sale su ficha. */
 export default function ParqueInterior({ onExit }: Props) {
   const [open, setOpen] = useState<PetKind | null>(null)
+  const { t } = useLang()
   const scroller = useRef<HTMLDivElement>(null)
 
   // en el móvil en vertical los terrarios se ven más grandes y se recorren deslizando: se empieza por el centro
@@ -39,14 +41,14 @@ export default function ParqueInterior({ onExit }: Props) {
     <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4 compact:px-2 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+8px)]">
       <button
         type="button"
-        aria-label="Cerrar el parque"
+        aria-label={t('Cerrar el parque', 'Close the park')}
         tabIndex={-1}
         onClick={onExit}
         className="absolute inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
       />
 
       <motion.section
-        aria-label="Mis mascotas"
+        aria-label={t('Mis mascotas', 'My pets')}
         initial={{ y: 40, scale: 0.94, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 26 }}
@@ -54,10 +56,10 @@ export default function ParqueInterior({ onExit }: Props) {
         style={{ width: `min(1500px, 96vw, calc((100dvh - 96px - 62px) * ${ratio}))` }}
       >
         <header className="flex items-center justify-between gap-3 border-b-4 border-ink bg-mint px-5 py-3 compact:px-4 compact:py-2.5">
-          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-ink compact:text-xl">Mis mascotas</h2>
+          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-ink compact:text-xl">{t('Mis mascotas', 'My pets')}</h2>
           <span className="text-right text-sm font-bold text-ink/80 compact:text-xs">
-            <span className="compact:hidden">Pulsa en una para conocerla</span>
-            <span className="hidden compact:inline">Toca una para conocerla</span>
+            <span className="compact:hidden">{t('Pulsa en una para conocerla', 'Click one to meet it')}</span>
+            <span className="hidden compact:inline">{t('Toca una para conocerla', 'Tap one to meet it')}</span>
           </span>
         </header>
 
@@ -93,7 +95,9 @@ export default function ParqueInterior({ onExit }: Props) {
 
 function PetSprite({ p, onOpen }: { p: Placement; onOpen: () => void }) {
   const hit = PET_HIT[p.id]
+  const { pick } = useLang()
   const pet = PETS[p.id]
+  const name = pick(pet, 'name')
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
   const active = hovered || focused
@@ -103,7 +107,7 @@ function PetSprite({ p, onOpen }: { p: Placement; onOpen: () => void }) {
   return (
     <button
       type="button"
-      aria-label={`${pet.name}, ${pet.species}`}
+      aria-label={`${name}, ${pick(pet, 'species')}`}
       onClick={onOpen}
       onFocus={(e) => setFocused(e.currentTarget.matches(':focus-visible'))}
       onBlur={() => setFocused(false)}
@@ -158,7 +162,7 @@ function PetSprite({ p, onOpen }: { p: Placement; onOpen: () => void }) {
             exit={{ opacity: 0, y: 2, scale: 0.85, transition: { duration: 0.1 } }}
             transition={{ type: 'spring', stiffness: 520, damping: 24 }}
           >
-            {pet.name}
+            {name}
           </motion.span>
         )}
       </AnimatePresence>
@@ -167,7 +171,9 @@ function PetSprite({ p, onOpen }: { p: Placement; onOpen: () => void }) {
 }
 
 function PetCard({ kind, onClose }: { kind: PetKind; onClose: () => void }) {
+  const { t, pick } = useLang()
   const pet = PETS[kind]
+  const name = pick(pet, 'name')
   return (
     <motion.div
       className="absolute inset-0 z-[20000] flex items-center justify-center bg-ink/45"
@@ -178,7 +184,7 @@ function PetCard({ kind, onClose }: { kind: PetKind; onClose: () => void }) {
     >
       <motion.div
         role="dialog"
-        aria-label={`Ficha de ${pet.name}`}
+        aria-label={t(`Ficha de ${name}`, `About ${name}`)}
         onClick={(e) => e.stopPropagation()}
         initial={{ y: 30, scale: 0.9, rotate: -2 }}
         animate={{ y: 0, scale: 1, rotate: 0 }}
@@ -191,16 +197,16 @@ function PetCard({ kind, onClose }: { kind: PetKind; onClose: () => void }) {
         </div>
         <div className="min-w-0">
           <span className="inline-block rounded-full border-[3px] border-ink bg-sun px-3 py-0.5 text-xs font-extrabold uppercase tracking-wide text-ink">
-            {pet.species}
+            {pick(pet, 'species')}
           </span>
-          <h3 className="m-0 mt-2 font-display text-3xl uppercase leading-none tracking-wide text-ink compact:text-2xl">{pet.name}</h3>
-          <p className="m-0 mt-2 text-[15px] leading-snug font-medium text-ink/85">{pet.info}</p>
+          <h3 className="m-0 mt-2 font-display text-3xl uppercase leading-none tracking-wide text-ink compact:text-2xl">{name}</h3>
+          <p className="m-0 mt-2 text-[15px] leading-snug font-medium text-ink/85">{pick(pet, 'info')}</p>
         </div>
         <button
           type="button"
           onClick={onClose}
           autoFocus
-          aria-label="Cerrar la ficha"
+          aria-label={t('Cerrar la ficha', 'Close')}
           className="absolute -top-4 -right-4 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-4 border-ink bg-berry text-white shadow-[3px_3px_0_var(--color-ink)] outline-none focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-sun"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round">

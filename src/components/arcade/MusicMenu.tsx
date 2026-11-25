@@ -4,6 +4,7 @@ import { ALBUMS, trackUrl, type Album } from '../../data/arcade'
 import { playOpen } from '../../lib/ps2Sound'
 import Ps2Carousel from './Ps2Carousel'
 import { AlbumCover, Vinyl } from './visuals'
+import { useLang } from '../../lib/i18n'
 
 /**
  * Tocadiscos: primero un círculo con los grupos; al entrar en uno, sus canciones como discos
@@ -13,6 +14,8 @@ export default function MusicMenu({ onClose }: { onClose: () => void }) {
   const [album, setAlbum] = useState<Album | null>(null)
   // al volver de un grupo, el círculo sigue con ese grupo al frente
   const [lastIndex, setLastIndex] = useState(0)
+  const { t } = useLang()
+  const root = t('Mi música', 'My music')
 
   useEffect(() => playOpen(), [])
 
@@ -47,32 +50,32 @@ export default function MusicMenu({ onClose }: { onClose: () => void }) {
           >
             <Ps2Carousel
               round
-              path={['Mi música', album.title]}
-              enterLabel="Escuchar en Spotify"
-              backLabel="Volver"
+              path={[root, album.title]}
+              enterLabel={t('Escuchar en Spotify', 'Listen on Spotify')}
+              backLabel={t('Volver', 'Back')}
               onBack={() => setAlbum(null)}
-              items={album.tracks.map((t, i) => ({
-                key: `${i}-${t.title}`,
-                title: t.title,
-                subtitle: `${album.artist ?? album.title} · ${String(i + 1).padStart(2, '0')} de ${album.tracks.length}`,
-                href: trackUrl(album, t),
+              items={album.tracks.map((track, i) => ({
+                key: `${i}-${track.title}`,
+                title: track.title,
+                subtitle: `${album.artist ?? album.title} · ${String(i + 1).padStart(2, '0')} ${t('de', 'of')} ${album.tracks.length}`,
+                href: trackUrl(album, track),
                 // solo gira el del centro; los demás se quedan quietos donde estaban
-                render: (active) => <Vinyl album={album} cover={t.cover} spinning={active} />,
+                render: (active) => <Vinyl album={album} cover={track.cover} spinning={active} />,
               }))}
             />
           </motion.div>
         ) : (
           <motion.div key="albums" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
             <Ps2Carousel
-              path={['Mi música']}
+              path={[root]}
               initialIndex={lastIndex}
-              enterLabel="Abrir"
-              backLabel="Salir"
+              enterLabel={t('Abrir', 'Open')}
+              backLabel={t('Salir', 'Exit')}
               onBack={onClose}
               items={ALBUMS.map((a, i) => ({
                 key: a.id,
                 title: a.title,
-                subtitle: [a.artist, a.year, `${a.tracks.length} canciones`].filter(Boolean).join(' · '),
+                subtitle: [a.artist, a.year, t(`${a.tracks.length} canciones`, `${a.tracks.length} songs`)].filter(Boolean).join(' · '),
                 onSelect: () => {
                   setLastIndex(i)
                   setAlbum(a)

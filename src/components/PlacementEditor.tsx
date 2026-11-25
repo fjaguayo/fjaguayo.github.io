@@ -36,7 +36,7 @@ function bbox(b: BuildingConfig) {
 function toSource(buildings: BuildingConfig[]) {
   const lines = buildings.map(
     (b) =>
-      `  { id: '${b.id}', label: '${b.label}', image: '${b.image}', x: ${round(b.x)}, y: ${round(b.y)}, width: ${round(b.width)}${b.rotate ? `, rotate: ${b.rotate}` : ''}${b.flip ? ', flip: true' : ''} },`,
+      `  { id: '${b.id}', label: '${b.label}', labelEn: '${b.labelEn}', image: '${b.image}', x: ${round(b.x)}, y: ${round(b.y)}, width: ${round(b.width)}${b.rotate ? `, rotate: ${b.rotate}` : ''}${b.flip ? ', flip: true' : ''} },`,
   )
   return `export const BUILDINGS: BuildingConfig[] = [\n${lines.join('\n')}\n]\n`
 }

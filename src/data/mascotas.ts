@@ -9,35 +9,50 @@ export type PetKind = 'lola' | 'an' | 'palo' | 'reina' | 'isopodo'
 
 export interface Pet {
   name: string
+  nameEn?: string
   species: string
+  speciesEn: string
   info: string
+  infoEn: string
 }
 
 export const PETS: Record<PetKind, Pet> = {
   lola: {
     name: 'Lola',
     species: 'Jerbo blanco',
+    speciesEn: 'White gerbil',
     info: 'Vive en el terrario del arbusto, con su comedero y una rueda para correr.',
+    infoEn: 'Lives in the bush terrarium, with her food bowl and a wheel to run on.',
   },
   an: {
     name: 'Gustavo',
     species: 'Jerbo negro',
+    speciesEn: 'Black gerbil',
     info: 'Su terrario tiene una casita de madera, una rampa hasta la plataforma de arriba y su bebedero.',
+    infoEn: 'His terrarium has a little wooden house, a ramp up to the top platform and his water bottle.',
   },
   palo: {
     name: 'Bartolo',
     species: 'Insecto palo',
+    speciesEn: 'Stick insect',
     info: 'Se camufla entre las ramas secas de su terrario: si se queda quieto, cuesta encontrarlo.',
+    infoEn: 'Blends in with the dry branches of his terrarium: if he stays still, good luck finding him.',
   },
   reina: {
     name: 'La Reina',
+    nameEn: 'The Queen',
     species: 'Hormiga reina negra',
+    speciesEn: 'Black queen ant',
     info: 'Excava sus túneles en la tierra y es la que pone los huevos de toda la colonia.',
+    infoEn: 'Digs her tunnels in the soil and lays the eggs for the whole colony.',
   },
   isopodo: {
     name: 'Isópodos',
+    nameEn: 'Isopods',
     species: 'Isópodos amarillos',
+    speciesEn: 'Yellow isopods',
     info: 'Pequeños crustáceos de tierra que se esconden bajo los troncos y se comen la materia orgánica que se descompone.',
+    infoEn: 'Tiny land crustaceans that hide under the logs and eat decaying organic matter.',
   },
 }
 

@@ -5,6 +5,7 @@ import { CATEGORIES, imdbUrl, posterUrl, type CategoryId, type Title } from '../
 import { playTadum } from '../../lib/tadum'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import ExitButton from './ExitButton'
+import { useLang } from '../../lib/i18n'
 
 interface Props {
   onExit: () => void
@@ -31,6 +32,7 @@ export default function CineInterior({ onExit }: Props) {
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([])
   const category = CATEGORIES.find((c) => c.id === active)!
   const tv = useMediaQuery(TV_QUERY)
+  const { t, pick } = useLang()
 
   // sonido de apertura e intro; un clic o una tecla (que no sea Escape) la salta
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function CineInterior({ onExit }: Props) {
   // la pantalla: un Netflix en miniatura
   const screen = (
         <motion.section
-          aria-label="FJAHFLIX, series y películas favoritas"
+          aria-label={t('FJAHFLIX, series y películas favoritas', 'FJAHFLIX, favorite shows and movies')}
           initial={{ opacity: 0, filter: 'brightness(2.4)' }}
           animate={{ opacity: [0, 1, 0.75, 1], filter: 'brightness(1)' }}
           transition={{ duration: 0.6, delay: 0.1, times: [0, 0.4, 0.6, 1], ease: 'easeOut' }}
@@ -108,7 +110,7 @@ export default function CineInterior({ onExit }: Props) {
                 >
                   FJAHFLIX
                 </span>
-                <div role="tablist" aria-label="Categorías" className="no-scrollbar -mx-[calc(var(--u)*2.6)] flex max-w-[calc(100%_+_var(--u)*5.2)] min-w-0 gap-[calc(var(--u)*2)] overflow-x-auto px-[calc(var(--u)*2.6)]">
+                <div role="tablist" aria-label={t('Categorías', 'Categories')} className="no-scrollbar -mx-[calc(var(--u)*2.6)] flex max-w-[calc(100%_+_var(--u)*5.2)] min-w-0 gap-[calc(var(--u)*2)] overflow-x-auto px-[calc(var(--u)*2.6)]">
                   {CATEGORIES.map((c, i) => {
                     const selected = c.id === active
                     return (
@@ -128,7 +130,7 @@ export default function CineInterior({ onExit }: Props) {
                           selected ? 'text-white' : 'text-white/55 hover:text-white/85'
                         }`}
                       >
-                        {c.label}
+                        {pick(c, 'label')}
                         {selected && (
                           <motion.span
                             layoutId="cine-tab-underline"
@@ -154,9 +156,9 @@ export default function CineInterior({ onExit }: Props) {
                     className="absolute inset-0 flex flex-col justify-center"
                   >
                     <h2 className="m-0 px-[calc(var(--u)*2.6)] text-[length:calc(var(--u)*1.8)] font-bold leading-none">
-                      {category.label}
+                      {pick(category, 'label')}
                       <span className="ml-[calc(var(--u)*0.9)] text-[length:calc(var(--u)*1.1)] font-medium text-white/45">
-                        {category.items.length} títulos
+                        {t(`${category.items.length} títulos`, `${category.items.length} titles`)}
                       </span>
                     </h2>
                     <PosterRow items={category.items} />
@@ -275,10 +277,11 @@ function PosterRow({ items }: { items: Title[] }) {
 }
 
 function Arrow({ dir, hidden, onClick }: { dir: 1 | -1; hidden: boolean; onClick: () => void }) {
+  const { t } = useLang()
   return (
     <button
       type="button"
-      aria-label={dir === 1 ? 'Ver más títulos' : 'Ver títulos anteriores'}
+      aria-label={dir === 1 ? t('Ver más títulos', 'See more titles') : t('Ver títulos anteriores', 'See previous titles')}
       onClick={onClick}
       tabIndex={-1}
       className={`absolute top-[calc(var(--u)*1.2)] bottom-[calc(var(--u)*1.2)] z-20 flex w-[calc(var(--u)*2.6)] cursor-pointer items-center justify-center border-0 text-[length:calc(var(--u)*2.4)] text-white opacity-0 transition-opacity group-hover/row:opacity-100 ${
@@ -293,6 +296,8 @@ function Arrow({ dir, hidden, onClick }: { dir: 1 | -1; hidden: boolean; onClick
 }
 
 function Poster({ item }: { item: Title }) {
+  const { t, pick } = useLang()
+  const title = pick(item, 'title')
   const [broken, setBroken] = useState(false)
   const showImage = item.poster && !broken
 
@@ -301,7 +306,7 @@ function Poster({ item }: { item: Title }) {
       href={imdbUrl(item.imdbId)}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${item.title} (${item.year}${item.tag ? `, ${item.tag}` : ''}), abrir en IMDb`}
+      aria-label={`${title} (${item.year}${item.tag ? `, ${item.tag}` : ''}), ${t('abrir en IMDb', 'open on IMDb')}`}
       initial="rest"
       animate="rest"
       whileHover="hover"
@@ -329,7 +334,7 @@ function Poster({ item }: { item: Title }) {
         transition={{ duration: 0.18 }}
         className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/40 to-transparent p-[calc(var(--u)*0.9)]"
       >
-        <span className="text-[length:calc(var(--u)*1.3)] font-bold leading-tight">{item.title}</span>
+        <span className="text-[length:calc(var(--u)*1.3)] font-bold leading-tight">{title}</span>
         <span className="mt-[calc(var(--u)*0.4)] flex items-center justify-between text-[length:calc(var(--u)*0.95)] text-white/70">
           {item.tag ? `${item.year} · ${item.tag}` : item.year}
           <span className="rounded-[calc(var(--u)*0.25)] bg-[#f5c518] px-[calc(var(--u)*0.5)] py-[calc(var(--u)*0.1)] text-[length:calc(var(--u)*0.85)] font-black text-black">
@@ -343,6 +348,7 @@ function Poster({ item }: { item: Title }) {
 
 /** Carátula dibujada para los títulos que aún no tienen imagen. */
 function FallbackCover({ item }: { item: Title }) {
+  const { pick } = useLang()
   let h = 0
   for (const ch of item.title) h = (h * 31 + ch.charCodeAt(0)) % 360
   return (
@@ -358,7 +364,7 @@ function FallbackCover({ item }: { item: Title }) {
         transition={{ duration: 0.15 }}
         className="font-display text-[length:calc(var(--u)*1.7)] leading-[1.05] tracking-wide break-words uppercase"
       >
-        {item.title}
+        {pick(item, 'title')}
       </motion.span>
     </div>
   )

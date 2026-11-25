@@ -36,6 +36,12 @@ export const LABELS: Record<ArcadeObjectId, string> = {
   mesa: 'Mi campaña de DnD',
 }
 
+export const LABELS_EN: Record<ArcadeObjectId, string> = {
+  vinilo: 'My music',
+  recreativa: 'My games',
+  mesa: 'My DnD campaign',
+}
+
 export const ARCADE_HIT = HIT as {
   sala: { width: number; height: number }
 } & Record<ArcadeObjectId | 'corcho', { width: number; height: number; polygons: number[][][] }>

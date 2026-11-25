@@ -4,9 +4,11 @@ import { GAMES, gameUrl } from '../../data/arcade'
 import { playOpen } from '../../lib/ps2Sound'
 import Ps2Carousel from './Ps2Carousel'
 import { GameCover } from './visuals'
+import { useLang } from '../../lib/i18n'
 
 /** Máquina recreativa: mis juegos favoritos en un círculo. El del centro abre su página (Steam o la oficial). */
 export default function GamesMenu({ onClose }: { onClose: () => void }) {
+  const { t } = useLang()
   useEffect(() => playOpen(), [])
 
   useEffect(() => {
@@ -28,9 +30,9 @@ export default function GamesMenu({ onClose }: { onClose: () => void }) {
       transition={{ duration: 0.35 }}
     >
       <Ps2Carousel
-        path={['Mis juegos']}
-        enterLabel="Ver el juego"
-        backLabel="Salir"
+        path={[t('Mis juegos', 'My games')]}
+        enterLabel={t('Ver el juego', 'See the game')}
+        backLabel={t('Salir', 'Exit')}
         onBack={onClose}
         items={GAMES.map((g) => ({
           key: g.title,

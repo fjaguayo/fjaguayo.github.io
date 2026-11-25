@@ -85,3 +85,40 @@ export const ROUTINES: Routine[] = [
 ]
 
 export const gymUrl = (name: string) => `${import.meta.env.BASE_URL}gym/${name}.webp`
+
+/** Textos del gimnasio en inglés. Lo que no aparezca aquí se deja igual (p. ej. "Pec Deck"). */
+export const GYM_EN: Record<string, string> = {
+  // rango
+  'Plata II': 'Silver II',
+  'Top 55 % más fuerte': 'Top 55 % strongest',
+  // bloques
+  'Brazo y hombro': 'Arms and shoulders',
+  'Pecho y espalda': 'Chest and back',
+  Piernas: 'Legs',
+  'Core en casa': 'Core at home',
+  'En casa': 'At home',
+  'Bíceps · Dorsales · Tríceps': 'Biceps · Lats · Triceps',
+  'Hombros · Pecho · Dorsales': 'Shoulders · Chest · Lats',
+  'Cuádriceps · Aductores': 'Quads · Adductors',
+  'Abdomen · Oblicuos · Lumbar': 'Abs · Obliques · Lower back',
+  // ejercicios
+  'Curl de bíceps': 'Biceps curl',
+  'Extensión de tríceps': 'Triceps extension',
+  'Aperturas de pecho': 'Chest fly',
+  'Jalón al pecho agarre supino': 'Underhand lat pulldown',
+  'Press de banca inclinado': 'Incline bench press',
+  'Aperturas inversas': 'Reverse fly',
+  'Extensión de rodilla': 'Leg extension',
+  'Abducción de cadera': 'Hip abduction',
+  'Aducción de cadera': 'Hip adduction',
+  'Sentadilla búlgara': 'Bulgarian split squat',
+  Plancha: 'Plank',
+  'Crunch abdominal': 'Crunch',
+  'Elevación de piernas': 'Leg raise',
+  // material
+  'Barra EZ': 'EZ bar',
+  Cuerda: 'Rope',
+  Máquina: 'Machine',
+  Mancuerna: 'Dumbbell',
+  'Máquina Smith': 'Smith machine',
+}

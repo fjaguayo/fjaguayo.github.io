@@ -1,7 +1,8 @@
 import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ARCADE_HIT, DND_URL, LABELS, PLACEMENTS, STAGE, arcadeUrl, type ArcadeObjectId, type ArcadePlacement } from '../../data/arcade'
+import { ARCADE_HIT, DND_URL, LABELS, LABELS_EN, PLACEMENTS, STAGE, arcadeUrl, type ArcadeObjectId, type ArcadePlacement } from '../../data/arcade'
 import ExitButton from './ExitButton'
+import { useLang } from '../../lib/i18n'
 
 const MusicMenu = lazy(() => import('../arcade/MusicMenu'))
 const GamesMenu = lazy(() => import('../arcade/GamesMenu'))
@@ -53,6 +54,7 @@ export default function ArcadeInterior({ onExit }: Props) {
     if (editing) saveDraft(placements)
   }, [placements])
   const [menu, setMenu] = useState<Menu | null>(null)
+  const { t } = useLang()
   const [toast, setToast] = useState(false)
   const scroller = useRef<HTMLDivElement>(null)
   const opener = useRef<HTMLElement | null>(null)
@@ -88,14 +90,14 @@ export default function ArcadeInterior({ onExit }: Props) {
       >
         <button
           type="button"
-          aria-label="Cerrar el salón recreativo"
+          aria-label={t('Cerrar el salón recreativo', 'Close the arcade')}
           tabIndex={-1}
           onClick={onExit}
           className="absolute inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
         />
 
         <motion.section
-          aria-label="Salón recreativo: música, juegos y DnD"
+          aria-label={t('Salón recreativo: música, juegos y DnD', 'Arcade: music, games and DnD')}
           initial={{ y: 40, scale: 0.94, opacity: 0 }}
           animate={{ y: 0, scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 26 }}
@@ -107,11 +109,11 @@ export default function ArcadeInterior({ onExit }: Props) {
               className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-[#ff9be0] compact:text-xl"
               style={{ textShadow: '0 0 10px rgba(255, 90, 200, 0.75)' }}
             >
-              Salón recreativo
+              {t('Salón recreativo', 'Arcade')}
             </h2>
             <span className="text-right text-sm font-bold text-white/75 compact:text-xs">
-              <span className="compact:hidden">Pulsa en algo para usarlo</span>
-              <span className="hidden compact:inline">Toca algo para usarlo</span>
+              <span className="compact:hidden">{t('Pulsa en algo para usarlo', 'Click something to use it')}</span>
+              <span className="hidden compact:inline">{t('Toca algo para usarlo', 'Tap something to use it')}</span>
             </span>
           </header>
 
@@ -158,7 +160,7 @@ export default function ArcadeInterior({ onExit }: Props) {
                   animate={{ opacity: 1, y: 0, x: '-50%' }}
                   exit={{ opacity: 0, y: 6, x: '-50%' }}
                 >
-                  Mi página de DnD llegará pronto
+                  {t('Mi página de DnD llegará pronto', 'My DnD page is coming soon')}
                 </motion.p>
               )}
             </AnimatePresence>
@@ -181,7 +183,8 @@ export default function ArcadeInterior({ onExit }: Props) {
 
 function ObjectSprite({ p, onOpen }: { p: ArcadePlacement & { id: ArcadeObjectId }; onOpen: (el: HTMLElement) => void }) {
   const hit = ARCADE_HIT[p.id]
-  const label = LABELS[p.id]
+  const { en, t } = useLang()
+  const label = (en ? LABELS_EN : LABELS)[p.id]
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
   const active = hovered || focused
@@ -254,7 +257,7 @@ function ObjectSprite({ p, onOpen }: { p: ArcadePlacement & { id: ArcadeObjectId
       href={DND_URL}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${label} (se abre en otra pestaña)`}
+      aria-label={`${label} ${t('(se abre en otra pestaña)', '(opens in a new tab)')}`}
       className={className}
       style={style}
       {...handlers}

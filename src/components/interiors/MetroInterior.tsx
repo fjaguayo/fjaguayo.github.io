@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { BUILDINGS, type BuildingId } from '../../data/buildings'
+import type { BuildingId } from '../../data/buildings'
 import { enterBuilding } from '../../lib/enterBuilding'
 import { hasInterior } from '../../interiors'
 import ExitButton from './ExitButton'
+import { useLang } from '../../lib/i18n'
 
 interface Props {
   onExit: () => void
@@ -19,9 +20,10 @@ const HUB = { x: 500, y: 300 }
 
 type Station = { id: BuildingId; x: number; y: number; label: 'left' | 'right' | 'top' | 'bottom' }
 
-const LINES: { name: string; color: string; path: string; stations: Station[] }[] = [
+const LINES: { name: string; nameEn: string; color: string; path: string; stations: Station[] }[] = [
   {
     name: 'Línea 1 · Profesional',
+    nameEn: 'Line 1 · Professional',
     color: '#ee4266',
     path: 'M120 300 H880',
     stations: [
@@ -32,6 +34,7 @@ const LINES: { name: string; color: string; path: string; stations: Station[] }[
   },
   {
     name: 'Línea 2 · Social',
+    nameEn: 'Line 2 · Social',
     color: '#4d9de0',
     path: 'M500 70 V530',
     stations: [
@@ -42,6 +45,7 @@ const LINES: { name: string; color: string; path: string; stations: Station[] }[
   },
   {
     name: 'Línea 3 · Ocio',
+    nameEn: 'Line 3 · Leisure',
     color: '#3bceac',
     path: 'M270 90 L480 300 L690 510 H810',
     stations: [
@@ -53,6 +57,7 @@ const LINES: { name: string; color: string; path: string; stations: Station[] }[
   },
   {
     name: 'Línea 4 · Viajes',
+    nameEn: 'Line 4 · Travel',
     color: '#ffd23f',
     path: 'M500 300 L390 410 H150',
     stations: [{ id: 'aeropuerto', x: 170, y: 410, label: 'bottom' }],
@@ -66,24 +71,23 @@ const LABEL_OFFSET = {
   bottom: { dx: 0, dy: 36, anchor: 'middle' },
 } as const
 
-const nameOf = (id: BuildingId) => BUILDINGS.find((b) => b.id === id)?.label ?? id
-
 export default function MetroInterior({ onExit }: Props) {
   const reduce = useReducedMotion()
   const [hover, setHover] = useState<BuildingId | null>(null)
+  const { en, t, buildingName: nameOf } = useLang()
 
   return (
     <div className="fixed inset-0 flex overflow-y-auto overscroll-contain px-6 pt-20 pb-6 compact:px-3 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+12px)]">
       <button
         type="button"
-        aria-label="Cerrar el plano del metro"
+        aria-label={t('Cerrar el plano del metro', 'Close the metro map')}
         tabIndex={-1}
         onClick={onExit}
         className="fixed inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
       />
 
       <motion.section
-        aria-label="Plano del metro: acceso rápido a todos los edificios"
+        aria-label={t('Plano del metro: acceso rápido a todos los edificios', 'Metro map: quick access to every building')}
         initial={{ y: 40, scale: 0.94, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 26 }}
@@ -94,8 +98,8 @@ export default function MetroInterior({ onExit }: Props) {
             M
           </span>
           <div>
-            <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide compact:text-xl">Metro de FJAH City</h2>
-            <p className="m-0 mt-1 text-sm font-semibold text-cream/75">Pulsa una parada para ir directo</p>
+            <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide compact:text-xl">{t('Metro de FJAH City', 'FJAH City Metro')}</h2>
+            <p className="m-0 mt-1 text-sm font-semibold text-cream/75">{t('Pulsa una parada para ir directo', 'Click a stop to go straight there')}</p>
           </div>
         </header>
 
@@ -103,7 +107,7 @@ export default function MetroInterior({ onExit }: Props) {
         <MetroList />
 
         <div className="p-4 compact:hidden">
-          <svg viewBox="0 0 1000 600" className="block h-auto w-full" role="group" aria-label="Paradas">
+          <svg viewBox="0 0 1000 600" className="block h-auto w-full" role="group" aria-label={t('Paradas', 'Stops')}>
             {/* fondo de plano: cuadrícula suave */}
             <defs>
               <pattern id="metro-grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -137,7 +141,7 @@ export default function MetroInterior({ onExit }: Props) {
               <g transform={`translate(${HUB.x + 56} ${HUB.y - 48})`}>
                 <rect x={0} y={-22} width={150} height={34} rx={10} fill="#1b1b2f" />
                 <text x={75} y={2} textAnchor="middle" fontSize={17} fontWeight={800} fill="#fff6e3">
-                  Estás aquí
+                  {t('Estás aquí', 'You are here')}
                 </text>
               </g>
             </g>
@@ -155,7 +159,7 @@ export default function MetroInterior({ onExit }: Props) {
                     role="button"
                     tabIndex={open ? 0 : -1}
                     aria-disabled={!open}
-                    aria-label={open ? `Ir a ${name}` : `${name}, próximamente`}
+                    aria-label={open ? t(`Ir a ${name}`, `Go to ${name}`) : t(`${name}, próximamente`, `${name}, coming soon`)}
                     onClick={() => open && enterBuilding(s.id)}
                     onKeyDown={(e) => {
                       if (open && (e.key === 'Enter' || e.key === ' ')) {
@@ -206,7 +210,7 @@ export default function MetroInterior({ onExit }: Props) {
                         strokeWidth={4}
                         paintOrder="stroke"
                       >
-                        Próximamente
+                        {t('Próximamente', 'Coming soon')}
                       </text>
                     )}
                   </g>
@@ -220,7 +224,7 @@ export default function MetroInterior({ onExit }: Props) {
             {LINES.map((l) => (
               <li key={l.name} className="flex items-center gap-2 text-sm font-bold text-ink">
                 <span className="h-3 w-8 rounded-full border-2 border-ink" style={{ background: l.color }} />
-                {l.name}
+                {en ? l.nameEn : l.name}
               </li>
             ))}
           </ul>
@@ -234,13 +238,14 @@ export default function MetroInterior({ onExit }: Props) {
 
 /** Versión para el móvil: cada línea es una lista vertical de paradas, como el cartel de un andén. */
 function MetroList() {
+  const { en, t, buildingName: nameOf } = useLang()
   return (
     <div className="hidden grid-cols-2 gap-3 p-3 compact:grid short:grid-cols-4">
       {LINES.map((l) => (
-        <section key={l.name} aria-label={l.name} className="min-w-0 rounded-xl border-[3px] border-ink bg-white p-3 shadow-[3px_3px_0_var(--color-ink)]">
+        <section key={l.name} aria-label={en ? l.nameEn : l.name} className="min-w-0 rounded-xl border-[3px] border-ink bg-white p-3 shadow-[3px_3px_0_var(--color-ink)]">
           <h3 className="m-0 flex items-center gap-2 text-[13px] font-extrabold leading-tight text-ink">
             <span className="h-3 w-6 shrink-0 rounded-full border-2 border-ink" style={{ background: l.color }} />
-            {l.name}
+            {en ? l.nameEn : l.name}
           </h3>
           <ol className="relative m-0 mt-2 list-none p-0">
             {/* el trazado de la línea, detrás de los puntos */}
@@ -258,7 +263,7 @@ function MetroList() {
                     type="button"
                     disabled={!open}
                     onClick={() => enterBuilding(st.id)}
-                    aria-label={open ? `Ir a ${name}` : `${name}, próximamente`}
+                    aria-label={open ? t(`Ir a ${name}`, `Go to ${name}`) : t(`${name}, próximamente`, `${name}, coming soon`)}
                     className="relative flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-0 bg-transparent py-1.5 pr-1 text-left outline-none active:bg-sun/40 focus-visible:outline-3 focus-visible:outline-sky disabled:cursor-not-allowed"
                   >
                     <span
@@ -269,7 +274,7 @@ function MetroList() {
                       <span className={`block font-display text-[15px] uppercase leading-none tracking-wide ${open ? 'text-ink' : 'text-ink/45'}`}>
                         {name}
                       </span>
-                      {!open && <span className="mt-0.5 block text-[11px] font-bold text-ink/45">Próximamente</span>}
+                      {!open && <span className="mt-0.5 block text-[11px] font-bold text-ink/45">{t('Próximamente', 'Coming soon')}</span>}
                     </span>
                   </button>
                 </li>

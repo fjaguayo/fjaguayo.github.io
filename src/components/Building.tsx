@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { HIT_AREAS, assetUrl, type BuildingConfig } from '../data/buildings'
 import { enterBuilding } from '../lib/enterBuilding'
+import { useLang } from '../lib/i18n'
 
 interface Props {
   building: BuildingConfig
@@ -12,7 +13,9 @@ interface Props {
 const spring = { type: 'spring', stiffness: 380, damping: 22, mass: 0.7 } as const
 
 export default function Building({ building, editing = false }: Props) {
-  const { id, label, image, x, y, width, rotate = 0, flip = false } = building
+  const { en } = useLang()
+  const { id, label: labelEs, labelEn, image, x, y, width, rotate = 0, flip = false } = building
+  const label = en ? labelEn : labelEs
   const hit = HIT_AREAS[id]
   // con espejo, el punto de apoyo también se refleja
   const ax = flip ? 1 - hit.anchor[0] : hit.anchor[0]

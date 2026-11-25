@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { SLIDES, slideUrl } from '../../data/universidad'
 import ExitButton from './ExitButton'
+import { useLang } from '../../lib/i18n'
 
 interface Props {
   onExit: () => void
@@ -9,6 +10,7 @@ interface Props {
 
 /** Universidad: carrusel lineal con las etapas de formación, una imagen tras otra. */
 export default function UniversidadInterior({ onExit }: Props) {
+  const { t, pick } = useLang()
   const [[index, dir], setState] = useState<[number, 1 | -1]>([0, 1])
   const last = SLIDES.length - 1
   const go = (to: number) => {
@@ -43,20 +45,22 @@ export default function UniversidadInterior({ onExit }: Props) {
   }
 
   const slide = SLIDES[index]
+  const caption = pick(slide, 'caption')
+  const note = pick(slide, 'note')
 
   return (
     <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4 compact:px-2 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+8px)]">
       <button
         type="button"
-        aria-label="Cerrar la universidad"
+        aria-label={t('Cerrar la universidad', 'Close the university')}
         tabIndex={-1}
         onClick={onExit}
         className="absolute inset-0 cursor-default border-0 bg-ink/60 backdrop-blur-sm"
       />
 
       <motion.section
-        aria-roledescription="carrusel"
-        aria-label="Formación de Javier"
+        aria-roledescription={t('carrusel', 'carousel')}
+        aria-label={t('Formación de Javier', "Javier's education")}
         initial={{ y: 40, scale: 0.94, opacity: 0 }}
         animate={{ y: 0, scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 26 }}
@@ -66,7 +70,7 @@ export default function UniversidadInterior({ onExit }: Props) {
         style={{ width: 'min(1640px, 96vw, calc((100dvh - var(--chrome)) * 1.6))' }}
       >
         <header className="flex items-center justify-between border-b-4 border-ink bg-berry px-5 py-3 text-cream compact:px-4 compact:py-2">
-          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide compact:text-xl">Formación</h2>
+          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide compact:text-xl">{t('Formación', 'Education')}</h2>
           <span className="text-sm font-bold" aria-live="polite">
             {index + 1} / {SLIDES.length}
           </span>
@@ -103,7 +107,7 @@ export default function UniversidadInterior({ onExit }: Props) {
                 />
                 <img
                   src={slideUrl(slide.src)}
-                  alt={slide.caption}
+                  alt={caption}
                   draggable={false}
                   className="absolute inset-0 h-full w-full object-contain"
                 />
@@ -121,17 +125,17 @@ export default function UniversidadInterior({ onExit }: Props) {
           <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-6 pt-14 pb-4 max-sm:static max-sm:bg-none max-sm:bg-ink max-sm:px-4 max-sm:pt-3 short:px-4 short:pt-10 short:pb-2">
             <AnimatePresence mode="wait" initial={false}>
               <motion.p
-                key={slide.caption}
+                key={caption}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
                 className="m-0 text-center font-display text-3xl uppercase leading-tight tracking-wide text-cream [text-shadow:0_3px_0_#1b1b2f] compact:text-xl"
               >
-                {slide.caption}
-                {slide.note && (
+                {caption}
+                {note && (
                   <span className="mt-1 block font-sans text-base font-semibold normal-case tracking-normal text-cream/85 [text-shadow:0_1px_2px_#000] compact:text-sm">
-                    {slide.note}
+                    {note}
                   </span>
                 )}
               </motion.p>
@@ -152,7 +156,7 @@ export default function UniversidadInterior({ onExit }: Props) {
                     <button
                       type="button"
                       onClick={() => go(i)}
-                      aria-label={`${i + 1}. ${s.caption}`}
+                      aria-label={`${i + 1}. ${pick(s, 'caption')}`}
                       aria-current={i === index ? 'step' : undefined}
                       // zona de toque más grande que el punto, para el dedo
                       className="-m-2 block cursor-pointer border-0 bg-transparent p-2 outline-none focus-visible:outline-3 focus-visible:outline-offset-0 focus-visible:outline-sky"
@@ -177,12 +181,13 @@ export default function UniversidadInterior({ onExit }: Props) {
 }
 
 function NavArrow({ side, disabled, onClick }: { side: 'left' | 'right'; disabled: boolean; onClick: () => void }) {
+  const { t } = useLang()
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label={side === 'left' ? 'Foto anterior' : 'Foto siguiente'}
+      aria-label={side === 'left' ? t('Foto anterior', 'Previous photo') : t('Foto siguiente', 'Next photo')}
       className={`absolute top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-4 border-ink bg-cream text-ink shadow-[3px_3px_0_var(--color-ink)] transition-[opacity,transform] outline-none hover:scale-105 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-sun disabled:pointer-events-none disabled:opacity-0 compact:h-10 compact:w-10 compact:border-[3px] ${
         side === 'left' ? 'left-4 compact:left-2' : 'right-4 compact:right-2'
       }`}

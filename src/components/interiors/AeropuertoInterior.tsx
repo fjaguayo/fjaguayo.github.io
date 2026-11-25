@@ -4,6 +4,7 @@ import { VISITED } from '../../data/viajes'
 import type { Globe } from '../../lib/globe'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import ExitButton from './ExitButton'
+import { useLang } from '../../lib/i18n'
 
 interface Props {
   onExit: () => void
@@ -22,6 +23,10 @@ export default function AeropuertoInterior({ onExit }: Props) {
   const [takeoff, setTakeoff] = useState(!reduce)
   const [failed, setFailed] = useState(false)
   const touch = useMediaQuery('(pointer: coarse)')
+  const { en, t } = useLang()
+  // el globo lee el idioma en cada fotograma, así la etiqueta cambia al momento
+  const enRef = useRef(en)
+  enRef.current = en
 
   useEffect(() => {
     let globe: Globe | null = null
@@ -34,6 +39,7 @@ export default function AeropuertoInterior({ onExit }: Props) {
           container: mountRef.current,
           label: labelRef.current,
           countries: VISITED,
+          nameOf: (i) => (enRef.current ? VISITED[i].nameEn : VISITED[i].name),
           reducedMotion: !!reduce,
           onSelect: setSelected,
         })
@@ -55,7 +61,7 @@ export default function AeropuertoInterior({ onExit }: Props) {
     <div className="fixed inset-0 overflow-hidden"
       style={{ background: 'radial-gradient(ellipse at center, #13204a 0%, #070a1c 55%, #020308 100%)' }}>
       {/* el globo */}
-      <div ref={mountRef} className="absolute inset-0" role="img" aria-label="Globo terráqueo con los países que ha visitado Javier marcados con chinchetas" />
+      <div ref={mountRef} className="absolute inset-0" role="img" aria-label={t('Globo terráqueo con los países que ha visitado Javier marcados con chinchetas', 'Globe with the countries Javier has visited marked with pins')} />
       <div
         ref={labelRef}
         aria-hidden="true"
@@ -64,7 +70,7 @@ export default function AeropuertoInterior({ onExit }: Props) {
 
       {failed && (
         <p className="absolute inset-0 m-auto h-fit text-center font-semibold text-cream">
-          Tu navegador no puede mostrar el globo en 3D.
+          {t('Tu navegador no puede mostrar el globo en 3D.', "Your browser can't display the 3D globe.")}
         </p>
       )}
 
@@ -77,8 +83,8 @@ export default function AeropuertoInterior({ onExit }: Props) {
         className="absolute top-1/2 right-6 z-20 w-64 -translate-y-1/2 overflow-hidden rounded-2xl border-4 border-ink bg-cream shadow-[6px_6px_0_var(--color-ink)] max-sm:top-auto max-sm:right-[calc(var(--safe-right)+8px)] max-sm:bottom-[calc(var(--safe-bottom)+8px)] max-sm:left-[calc(var(--safe-left)+8px)] max-sm:w-auto max-sm:translate-y-0 max-sm:shadow-[4px_4px_0_var(--color-ink)] short:right-[calc(var(--safe-right)+12px)] short:w-56"
       >
         <header className="border-b-4 border-ink bg-sky px-4 py-3 text-cream compact:py-2 max-sm:flex max-sm:items-baseline max-sm:justify-between max-sm:gap-3">
-          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide compact:text-xl">Pasaporte</h2>
-          <p className="m-0 mt-1 text-sm font-semibold max-sm:mt-0 max-sm:text-xs">{VISITED.length} países visitados</p>
+          <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide compact:text-xl">{t('Pasaporte', 'Passport')}</h2>
+          <p className="m-0 mt-1 text-sm font-semibold max-sm:mt-0 max-sm:text-xs">{t(`${VISITED.length} países visitados`, `${VISITED.length} countries visited`)}</p>
         </header>
         <ul className="m-0 max-h-[68dvh] list-none overflow-y-auto overscroll-contain p-2 max-sm:no-scrollbar max-sm:flex max-sm:max-h-none max-sm:gap-1.5 max-sm:overflow-x-auto max-sm:overflow-y-hidden short:max-h-[calc(100dvh-150px)]">
           {VISITED.map((c, i) => (
@@ -92,7 +98,7 @@ export default function AeropuertoInterior({ onExit }: Props) {
                 }`}
               >
                 <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full border-2 border-ink bg-berry" />
-                {c.name}
+                {en ? c.nameEn : c.name}
               </button>
             </li>
           ))}
@@ -106,8 +112,8 @@ export default function AeropuertoInterior({ onExit }: Props) {
         className="pointer-events-none absolute bottom-6 left-1/2 z-20 m-0 -translate-x-1/2 rounded-full bg-black/40 px-4 py-1.5 text-sm font-semibold whitespace-nowrap text-cream max-sm:top-[calc(var(--safe-top)+64px)] max-sm:bottom-auto max-sm:px-3 max-sm:text-xs short:bottom-3 short:text-xs"
       >
         {touch
-          ? 'Arrastra para girar · pellizca para acercar'
-          : 'Arrastra para girar la Tierra · rueda para acercar · pulsa una chincheta'}
+          ? t('Arrastra para girar · pellizca para acercar', 'Drag to spin · pinch to zoom')
+          : t('Arrastra para girar la Tierra · rueda para acercar · pulsa una chincheta', 'Drag to spin the Earth · scroll to zoom · click a pin')}
       </motion.p>
 
       <AnimatePresence>{takeoff && <Takeoff key="takeoff" />}</AnimatePresence>

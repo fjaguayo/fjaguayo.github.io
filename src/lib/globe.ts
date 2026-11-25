@@ -83,6 +83,8 @@ export interface GlobeOptions {
   /** Etiqueta HTML que el globo coloca encima de la chincheta señalada. */
   label: HTMLElement
   countries: Country[]
+  /** Nombre que se enseña en la etiqueta (para el idioma). Si falta, `name`. */
+  nameOf?: (index: number) => string
   reducedMotion: boolean
   onSelect?: (index: number | null) => void
 }
@@ -389,7 +391,7 @@ export class Globe {
     const facing = head.clone().normalize().dot(this.camera.position.clone().normalize()) > 0.15
     const p = head.project(this.camera)
     const { clientWidth: w, clientHeight: h } = this.opts.container
-    label.textContent = this.opts.countries[index].name
+    label.textContent = this.opts.nameOf?.(index) ?? this.opts.countries[index].name
     label.style.transform = `translate(-50%, -130%) translate(${((p.x + 1) / 2) * w}px, ${((1 - p.y) / 2) * h}px)`
     label.style.opacity = facing ? '1' : '0'
   }
