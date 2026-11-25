@@ -18,7 +18,14 @@ interface Props {
 
 const HUB = { x: 500, y: 300 }
 
-type Station = { id: BuildingId; x: number; y: number; label: 'left' | 'right' | 'top' | 'bottom' }
+type Station = {
+  id: BuildingId
+  x: number
+  y: number
+  label: 'left' | 'right' | 'top' | 'bottom'
+  /** Desplaza el texto (nombre y subtítulo) en horizontal, para que no pise una línea. */
+  nudge?: number
+}
 
 const LINES: { name: string; nameEn: string; color: string; path: string; stations: Station[] }[] = [
   {
@@ -51,8 +58,8 @@ const LINES: { name: string; nameEn: string; color: string; path: string; statio
     stations: [
       { id: 'gimnasio', x: 270, y: 90, label: 'left' },
       { id: 'arcade', x: 370, y: 190, label: 'left' },
-      { id: 'cine', x: 610, y: 410, label: 'right' },
-      { id: 'parque', x: 800, y: 510, label: 'right' },
+      { id: 'cine', x: 610, y: 410, label: 'right', nudge: 16 },
+      { id: 'parque', x: 800, y: 510, label: 'bottom' },
     ],
   },
   {
@@ -63,6 +70,19 @@ const LINES: { name: string; nameEn: string; color: string; path: string; statio
     stations: [{ id: 'aeropuerto', x: 170, y: 410, label: 'bottom' }],
   },
 ]
+
+/** Lo que encuentras en cada parada, en una frase. Las que aún no tienen interior dicen "Próximamente". */
+const BLURBS: Partial<Record<BuildingId, { es: string; en: string }>> = {
+  universidad: { es: 'Mi formación, paso a paso', en: 'My education, step by step' },
+  centro_civico: { es: 'Mis redes sociales', en: 'My social networks' },
+  oficina_correos: { es: 'Mándame una postal', en: 'Send me a postcard' },
+  cartel_bienvenida: { es: 'Mi currículum', en: 'My résumé' },
+  gimnasio: { es: 'Mi rutina y mi rango', en: 'My routine and rank' },
+  arcade: { es: 'Música, juegos y DnD', en: 'Music, games and DnD' },
+  cine: { es: 'Mis series y pelis favoritas', en: 'My favorite shows and films' },
+  parque: { es: 'Mis mascotas y sus terrarios', en: 'My pets and their terrariums' },
+  aeropuerto: { es: 'Los países que he visitado', en: "Countries I've visited" },
+}
 
 const LABEL_OFFSET = {
   left: { dx: -22, dy: 6, anchor: 'end' },
@@ -153,13 +173,14 @@ export default function MetroInterior({ onExit }: Props) {
                 const on = hover === s.id
                 const o = LABEL_OFFSET[s.label]
                 const name = nameOf(s.id)
+                const blurb = open ? BLURBS[s.id]?.[en ? 'en' : 'es'] : t('Próximamente', 'Coming soon')
                 return (
                   <g
                     key={s.id}
                     role="button"
                     tabIndex={open ? 0 : -1}
                     aria-disabled={!open}
-                    aria-label={open ? t(`Ir a ${name}`, `Go to ${name}`) : t(`${name}, próximamente`, `${name}, coming soon`)}
+                    aria-label={open ? t(`Ir a ${name}: ${blurb}`, `Go to ${name}: ${blurb}`) : t(`${name}, próximamente`, `${name}, coming soon`)}
                     onClick={() => open && enterBuilding(s.id)}
                     onKeyDown={(e) => {
                       if (open && (e.key === 'Enter' || e.key === ' ')) {
@@ -185,7 +206,7 @@ export default function MetroInterior({ onExit }: Props) {
                       style={{ transition: 'r 0.15s ease' }}
                     />
                     <text
-                      x={s.x + o.dx}
+                      x={s.x + o.dx + (s.nudge ?? 0)}
                       y={s.y + o.dy}
                       textAnchor={o.anchor}
                       fontSize={on && open ? 25 : 22}
@@ -198,19 +219,19 @@ export default function MetroInterior({ onExit }: Props) {
                     >
                       {name}
                     </text>
-                    {!open && (
+                    {blurb && (
                       <text
-                        x={s.x + o.dx}
-                        y={s.y + o.dy + 20}
+                        x={s.x + o.dx + (s.nudge ?? 0)}
+                        y={s.y + o.dy + 21}
                         textAnchor={o.anchor}
-                        fontSize={14}
+                        fontSize={15}
                         fontWeight={700}
-                        fill="#1b1b2f80"
+                        fill={open ? '#1b1b2fb3' : '#1b1b2f80'}
                         stroke="#fff6e3"
-                        strokeWidth={4}
+                        strokeWidth={5}
                         paintOrder="stroke"
                       >
-                        {t('Próximamente', 'Coming soon')}
+                        {blurb}
                       </text>
                     )}
                   </g>
@@ -257,13 +278,14 @@ function MetroList() {
             {l.stations.map((st) => {
               const open = hasInterior(st.id)
               const name = nameOf(st.id)
+              const blurb = BLURBS[st.id]?.[en ? 'en' : 'es']
               return (
                 <li key={st.id}>
                   <button
                     type="button"
                     disabled={!open}
                     onClick={() => enterBuilding(st.id)}
-                    aria-label={open ? t(`Ir a ${name}`, `Go to ${name}`) : t(`${name}, próximamente`, `${name}, coming soon`)}
+                    aria-label={open ? t(`Ir a ${name}: ${blurb}`, `Go to ${name}: ${blurb}`) : t(`${name}, próximamente`, `${name}, coming soon`)}
                     className="relative flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-0 bg-transparent py-1.5 pr-1 text-left outline-none active:bg-sun/40 focus-visible:outline-3 focus-visible:outline-sky disabled:cursor-not-allowed"
                   >
                     <span
@@ -274,7 +296,11 @@ function MetroList() {
                       <span className={`block font-display text-[15px] uppercase leading-none tracking-wide ${open ? 'text-ink' : 'text-ink/45'}`}>
                         {name}
                       </span>
-                      {!open && <span className="mt-0.5 block text-[11px] font-bold text-ink/45">{t('Próximamente', 'Coming soon')}</span>}
+                      {open ? (
+                        blurb && <span className="mt-0.5 block text-[11px] leading-tight font-semibold text-ink/65">{blurb}</span>
+                      ) : (
+                        <span className="mt-0.5 block text-[11px] font-bold text-ink/45">{t('Próximamente', 'Coming soon')}</span>
+                      )}
                     </span>
                   </button>
                 </li>
