@@ -6,13 +6,22 @@ interface Props {
   onExit: () => void
 }
 
-const CV_URL = `${import.meta.env.BASE_URL}cv/CV_FJAH.pdf`
+const BASE = import.meta.env.BASE_URL
+// Un CV por idioma: el español por defecto y el inglés cuando la web está en inglés.
+const CV_URL = {
+  es: `${BASE}cv/CV_FJAH.pdf`,
+  en: `${BASE}cv/CV_FJAH_EN.pdf`,
+} as const
 // Las páginas del PDF como imágenes: se ven igual en todos los navegadores, también en los que no muestran PDF.
-const PAGES = [1, 2, 3].map((n) => `${import.meta.env.BASE_URL}cv/pagina_${n}.webp`)
+const PAGES = {
+  es: [1, 2, 3].map((n) => `${BASE}cv/pagina_${n}.webp`),
+  en: [1, 2, 3].map((n) => `${BASE}cv/pagina_${n}_en.webp`),
+} as const
 
 /** El cartel de bienvenida abre el CV en una ficha encima de la ciudad. */
 export default function CvInterior({ onExit }: Props) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
+  const pages = PAGES[lang]
   return (
     <div className="fixed inset-0 flex items-center justify-center px-4 pt-20 pb-4 compact:px-2 compact:pt-16 compact:pb-[calc(var(--safe-bottom)+8px)]">
       {/* la ciudad se queda detrás, oscurecida; un clic fuera de la ficha vuelve */}
@@ -34,7 +43,7 @@ export default function CvInterior({ onExit }: Props) {
         <header className="flex items-center justify-between gap-3 border-b-4 border-ink bg-sun px-5 py-3 compact:px-4 compact:py-2.5">
           <h2 className="m-0 font-display text-2xl uppercase leading-none tracking-wide text-ink compact:text-xl">{t('Currículum', 'Résumé')}</h2>
           <a
-            href={CV_URL}
+            href={CV_URL[lang]}
             target="_blank"
             rel="noopener noreferrer"
             className="shrink-0 rounded-lg border-[3px] border-ink bg-cream px-3 py-1.5 text-sm font-bold text-ink no-underline shadow-[3px_3px_0_var(--color-ink)] transition-transform hover:-translate-y-0.5 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-sky"
@@ -44,11 +53,11 @@ export default function CvInterior({ onExit }: Props) {
           </a>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#d9d4c7] p-4 compact:p-2">
-          {PAGES.map((src, i) => (
+          {pages.map((src, i) => (
             <img
               key={src}
               src={src}
-              alt={t(`Currículum, página ${i + 1} de ${PAGES.length}`, `Résumé, page ${i + 1} of ${PAGES.length}`)}
+              alt={t(`Currículum, página ${i + 1} de ${pages.length}`, `Résumé, page ${i + 1} of ${pages.length}`)}
               loading={i === 0 ? 'eager' : 'lazy'}
               draggable={false}
               className="mx-auto mb-4 block w-full max-w-[800px] rounded-md border-2 border-ink/20 bg-white shadow-[0_4px_14px_rgba(0,0,0,0.18)] last:mb-0 compact:mb-2"
